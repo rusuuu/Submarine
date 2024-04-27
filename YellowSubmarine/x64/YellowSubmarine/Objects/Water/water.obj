@@ -1,0 +1,33 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 03.01.2020 23:14:37
+
+mtllib water.mtl
+
+#
+# object Water
+#
+
+v  -340.4700 7.8212 -276.9390
+v  -340.4700 7.8211 284.6610
+v  221.1300 7.8212 -276.9390
+v  221.1300 7.8211 284.6610
+# 4 vertices
+
+vn -0.0000 1.0000 0.0000
+vn 0.0000 1.0000 0.0000
+# 2 vertex normals
+
+vt -0.0000 1.0000 0.0000
+vt -0.0000 -0.0000 0.0000
+vt 1.0000 1.0000 0.0000
+vt 1.0000 -0.0000 0.0000
+# 4 texture coords
+
+o Water
+g Water
+usemtl Water
+s 1
+f 1/1/1 2/2/2 3/3/2 
+f 4/4/2 3/3/2 2/2/2 
+# 2 faces
+
