@@ -14,6 +14,13 @@ const unsigned int SHADOW_HEIGHT = 4096;
 double deltaTime = 0.0f;    // time between current frame and last frame
 double lastFrame = 0.0f;
 
+float submarineX = 0.0f;
+float submarineY = 0.0f;
+float submarineZ = 0.0f;
+float submarineAngle = 0.0f;
+float submarineAccel = 0.0f;
+float submarineVerticalAccel = 0.0f;
+
 Camera* pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
 
 void processInput(GLFWwindow* window) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -63,4 +70,74 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_S && action == GLFW_PRESS) {
 		RotateLight = false;
 	}
+}
+
+enum ESubmarineMovementType
+{
+	MOVEUNKNOWN,
+	MOVE,
+	MOVELEFT,
+	MOVERIGHT,
+	MOVEVERTICAL
+};
+
+void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) {
+	//float velocity = (float)(cameraSpeedFactor * deltaTime);
+	switch (direction) {
+	case ESubmarineMovementType::MOVE:
+		submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
+		submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
+		break;
+	case ESubmarineMovementType::MOVELEFT:
+		submarineAngle+=0.8f * sqrtf(abs(submarineAccel));
+		break;
+	case ESubmarineMovementType::MOVERIGHT:
+		submarineAngle-=0.8f * sqrtf(abs(submarineAccel));
+		break;
+	case ESubmarineMovementType::MOVEVERTICAL:
+		submarineY += submarineVerticalAccel;
+		break;
+	}
+}
+
+void processSubmarineMovement(GLFWwindow* window) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.5 && submarineVerticalAccel < 0.005)
+			submarineVerticalAccel += 0.00005;
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineVerticalAccel > -0.005)
+			submarineVerticalAccel -= 0.00005;
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY >= 1.5)
+			submarineVerticalAccel = 0;
+	}
+	else
+	{
+		if (submarineVerticalAccel < 0.0f)
+			submarineVerticalAccel += 0.00002f;
+		if (submarineVerticalAccel > 0.0f)
+			submarineVerticalAccel -= 0.00002f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			if (submarineAccel < 0.01f)
+				submarineAccel += 0.00001f;
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			if (submarineAccel > -0.01f)
+				submarineAccel -= 0.00001f;
+	}
+	else
+	{
+		if (submarineAccel < 0.0f)
+			submarineAccel += 0.000005f;
+		if (submarineAccel > 0.0f)
+			submarineAccel -= 0.000005f;
+	}
+	ProcessKeyboardMovement(MOVE, deltaTime);
+	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		ProcessKeyboardMovement(MOVELEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		ProcessKeyboardMovement(MOVERIGHT, deltaTime);
+
 }
