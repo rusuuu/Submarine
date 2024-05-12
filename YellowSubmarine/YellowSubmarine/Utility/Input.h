@@ -20,6 +20,7 @@ float submarineZ = 0.0f;
 float submarineAngle = 0.0f;
 float submarineAccel = 0.0f;
 float submarineVerticalAccel = 0.0f;
+float propellerAngle = 0.0f;
 
 Camera* pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
 
@@ -87,6 +88,7 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) 
 	case ESubmarineMovementType::MOVE:
 		submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
 		submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
+		propellerAngle -= 150*submarineAccel;
 		break;
 	case ESubmarineMovementType::MOVELEFT:
 		submarineAngle+=0.8f * sqrtf(abs(submarineAccel));
