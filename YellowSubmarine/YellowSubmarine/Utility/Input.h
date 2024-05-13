@@ -91,10 +91,10 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) 
 		propellerAngle -= 150*submarineAccel;
 		break;
 	case ESubmarineMovementType::MOVELEFT:
-		submarineAngle+=0.8f * sqrtf(abs(submarineAccel));
+		submarineAngle+=1.1*sqrtf(abs(submarineAccel));
 		break;
 	case ESubmarineMovementType::MOVERIGHT:
-		submarineAngle-=0.8f * sqrtf(abs(submarineAccel));
+		submarineAngle-=1.1*sqrtf(abs(submarineAccel));
 		break;
 	case ESubmarineMovementType::MOVEVERTICAL:
 		submarineY += submarineVerticalAccel;
@@ -105,35 +105,35 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) 
 void processSubmarineMovement(GLFWwindow* window) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.5 && submarineVerticalAccel < 0.005)
-			submarineVerticalAccel += 0.00005;
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineVerticalAccel > -0.005)
-			submarineVerticalAccel -= 0.00005;
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY >= 1.5)
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.0075)
+			submarineVerticalAccel += 0.000075;
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineVerticalAccel > -0.0075)
+			submarineVerticalAccel -= 0.000075;
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY >= 1.39)
 			submarineVerticalAccel = 0;
 	}
 	else
 	{
 		if (submarineVerticalAccel < 0.0f)
-			submarineVerticalAccel += 0.00002f;
+			submarineVerticalAccel += 0.00005f;
 		if (submarineVerticalAccel > 0.0f)
-			submarineVerticalAccel -= 0.00002f;
+			submarineVerticalAccel -= 0.00005f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			if (submarineAccel < 0.01f)
-				submarineAccel += 0.00001f;
+			if (submarineAccel < 0.02f)
+				submarineAccel += 0.00002f;
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			if (submarineAccel > -0.01f)
-				submarineAccel -= 0.00001f;
+			if (submarineAccel > -0.02f)
+				submarineAccel -= 0.00002f;
 	}
 	else
 	{
 		if (submarineAccel < 0.0f)
-			submarineAccel += 0.000005f;
+			submarineAccel += 0.00001f;
 		if (submarineAccel > 0.0f)
-			submarineAccel -= 0.000005f;
+			submarineAccel -= 0.00001f;
 	}
 	ProcessKeyboardMovement(MOVE, deltaTime);
 	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime);

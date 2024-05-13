@@ -1,20 +1,140 @@
-# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 08.01.2020 21:57:53
+# Blender 4.1.1 MTL File: 'untitled.blend'
+# www.blender.org
 
-newmtl Submarine
-	Ns 10.0000
-	Ni 1.5000
-	d 1.0000
-	Tr 0.0000
-	Tf 1.0000 1.0000 1.0000 
-	illum 2
-	Ka 0.5882 0.5882 0.5882
-	Kd 0.5882 0.5882 0.5882
-	Ks 0.0000 0.0000 0.0000
-	Ke 0.0000 0.0000 0.0000
-	map_Ka YellowSubmarine_Material_Diffuse.png
-	map_Ka YellowSubmarine_Material_Diffuse.png
-	map_Kd YellowSubmarine_Material_Diffuse.png
-	map_Ks YellowSubmarine_Material_Specular.png
-	map_bump YellowSubmarine_Material_Normal.png
-	bump YellowSubmarine_Material_Normal.png
+newmtl Camera_LPSG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineCamera_Diffuse.png
+map_Ka SubmarineCamera_Diffuse.png
+map_Kd SubmarineCamera_Diffuse.png
+map_bump SubmarineCamera_Normal.png
+bump SubmarineCamera_Normal.png
+
+newmtl GlassCar_Window1SG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineFrontGlass_Diffuse.png
+map_Ka SubmarineFrontGlass_Diffuse.png
+map_Kd SubmarineFrontGlass_Diffuse.png
+map_bump SubmarineFrontGlass_Normal.png
+bump SubmarineFrontGlass_Normal.png
+
+
+newmtl RadarDish_LPSG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineRadar_Diffuse.png
+map_Ka SubmarineRadar_Diffuse.png
+map_Kd SubmarineRadar_Diffuse.png
+map_bump SubmarineRadar_Normal.png
+bump SubmarineRadar_Normal.png
+
+newmtl VRayBumpMtl1SG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineBody_Diffuse.png
+map_Ka SubmarineBody_Diffuse.png
+map_Kd SubmarineBody_Diffuse.png
+map_Ke SubmarineBody_Emissive.png
+map_bump SubmarineBody_Normal.png
+bump SubmarineBody_Normal.png
+
+newmtl VRayLightMtl1SG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineCameraLenses_Diffuse.png
+map_Ka SubmarineCameraLenses_Diffuse.png
+map_Kd SubmarineCameraLenses_Diffuse.png
+map_bump SubmarineCameraLenses_Normal.png
+bump SubmarineCameraLenses_Normal.png
+
+newmtl VRayLightMtl2SG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineCameraLenses_Diffuse.png
+map_Ka SubmarineCameraLenses_Diffuse.png
+map_Kd SubmarineCameraLenses_Diffuse.png
+map_bump SubmarineCameraLenses_Normal.png
+bump SubmarineCameraLenses_Normal.png
+
+newmtl glassCoversSG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineGlasses_Diffuse.png
+map_Ka SubmarineGlasses_Diffuse.png
+map_Kd SubmarineGlasses_Diffuse.png
+map_Ke SubmarineGlasses_Emissive.png
+map_bump SubmarineGlasses_Normal.png
+bump SubmarineGlasses_Normal.png
+
+newmtl initialShadingGroup
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineInterior_Diffuse.png
+map_Ka SubmarineInterior_Diffuse.png
+map_Kd SubmarineInterior_Diffuse.png
+map_bump SubmarineInterior_Normal.png
+bump SubmarineInterior_Normal.png
+
+newmtl lambert4SG
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Ka SubmarineInterior_Diffuse.png
+map_Ka SubmarineInterior_Diffuse.png
+map_Kd SubmarineInterior_Diffuse.png
+map_bump SubmarineInterior_Normal.png
+bump SubmarineInterior_Normal.png

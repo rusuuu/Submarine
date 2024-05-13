@@ -63,7 +63,7 @@ private:
 
 protected:
 
-	const float cameraSpeedFactor = 2.5f;
+	const float cameraSpeedFactor = 5.0f;
 	//const float cameraSpeedFactor = 100.f;
 	const float mouseSensitivity = 0.1f;
 

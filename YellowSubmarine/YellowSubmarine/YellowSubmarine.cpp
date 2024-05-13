@@ -84,7 +84,7 @@ bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat
 	return true;
 }
 
-bool DrawPropeller(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor) {
+bool DrawPropeller(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor, float yPos) {
 	// ** MODEL **
 	shaderModel.Use();
 
@@ -97,7 +97,7 @@ bool DrawPropeller(Shader shaderModel, Model objectModel, glm::mat4& view, glm::
 
 	// Draw the loaded model
 	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ)); // Move to scene centre
+	model = glm::translate(model, glm::vec3(submarineX, submarineY+yPos, submarineZ)); // Move to scene centre
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(propellerAngle), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -351,8 +351,9 @@ int main(int argc, char** argv) {
 		DrawSkybox(shaderSkybox, view, projection);
 
 		// ** MODEL **
-		DrawSubmarine(shaderModel, submarineModel, view, projection, 0.5f);
-		DrawPropeller(shaderModel, propellerModel, view, projection, 0.5f);
+		DrawSubmarine(shaderModel, submarineModel, view, projection, 0.002f);
+		DrawPropeller(shaderModel, propellerModel, view, projection, 0.002f, 0.063f);
+		DrawPropeller(shaderModel, propellerModel, view, projection, 0.002f, 0.35f);
 
 		auto t_now = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
