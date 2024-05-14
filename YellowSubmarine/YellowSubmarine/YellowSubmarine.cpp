@@ -61,7 +61,7 @@ bool DrawSkybox(Shader shaderSkybox, glm::mat4& view, glm::mat4& projection) {
 	return true;
 }
 
-bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor) {
+bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, glm::vec3 lightPos, float scaleFactor) {
 	// ** MODEL **
 	shaderModel.Use();
 
@@ -70,7 +70,9 @@ bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat
 	shaderModel.SetMat4("view", view);
 	shaderModel.SetMat4("projection", projection);
 
-	
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	shaderModel.SetVec3("lightPos", lightPos);
+	shaderModel.SetVec3("viewPos", pCamera->GetPosition());
 
 	// Draw the loaded model
 	glm::mat4 model;
@@ -390,8 +392,8 @@ int main(int argc, char** argv) {
 		//DrawAndRotateObject(shaderModel, propellerModel, view, projection, 0.5f, time, 2.0);
 		//DrawAndRotateObject(shaderModel, submarineModel, view, projection, 0.5f, time, 2.0);
 
-		DrawObject(shaderModel, terrainModel, view, projection, 0.2f);
-		DrawObject(shaderModel, waterModel, view, projection, 0.2f);
+		DrawObject(shaderModel, terrainModel, view, projection, lightPos, 0.2f);
+		DrawObject(shaderModel, waterModel, view, projection, lightPos, 0.2f);
 		//DrawObject(shaderModel, wallModel, view, projection, 0.2f);
 		// ** MODEL **
 
