@@ -175,35 +175,27 @@ bool DrawSubmarine(Shader shaderModel, Model objectModel, glm::mat4& view, glm::
 	return true;
 }
 
-bool DrawAndRotateObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor, float time, float speedFactor) {
-	float degrees = 90 + glfwGetTime() / speedFactor;
-
-	// ** MODEL **
+bool DrawAlge(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float heightScaleFactor, float widthScaleFactor, float xPos, float yPos, float zPos, float degrees)
+{
 	shaderModel.Use();
 
 	view = pCamera->GetViewMatrix();
 
 	shaderModel.SetMat4("view", view);
 	shaderModel.SetMat4("projection", projection);
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 	// Draw the loaded model
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ)); // Move to scene centre
-	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
-
-	/*model = glm::rotate(
-		model,
-		time * glm::radians(180.0f) * speedFactor,
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);*/
-	model = glm::rotate(model, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(xPos, yPos, zPos)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(widthScaleFactor, heightScaleFactor, widthScaleFactor)); // Scale model
+	model = glm::rotate(model, glm::radians(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
 	shaderModel.SetMat4("model", model);
 	objectModel.Draw(shaderModel);
 	// ** MODEL **
 
 	return true;
 }
-
 
 bool BuildDepthMapVBO(unsigned int& depthMap, unsigned int& depthMapFBO) {
 
@@ -335,12 +327,18 @@ int main(int argc, char** argv) {
 
 	std::string pathToObjectShaders(pathToShaders + "Objects\\");
 	Shader shaderModel(pathToObjectShaders + "modelLoading.vs", pathToObjectShaders + "modelLoading.frag");
+	Shader shaderAlge(pathToObjectShaders + "algeShader.vs", pathToObjectShaders + "algeShader.frag");
 
 	// Load models
 	std::string pathSub = pathToDetachedSubmarine + "sub_obj.obj";
 	std::string pathProp = pathToDetachedSubmarine + "prop_obj.obj";
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
+
+	std::vector<std::string> pathAlge;
+	for (int index = 0; index < 23; index++)
+		pathAlge.push_back({ pathToAlge + "alga" + std::to_string(index) + ".obj" });
+
 	std::string pathHitbox = pathToHitbox + "hitbox.obj";
 	std::string pathWall = pathToHitbox + "hitboxWall.obj";
 
@@ -352,6 +350,14 @@ int main(int argc, char** argv) {
 
 	const char* terrain = pathTerrain.c_str();
 	Model terrainModel((GLchar*)terrain);
+
+	std::vector<const char*> alge;
+	for (int index = 0; index < 23; index++)
+		alge.push_back(pathAlge[index].c_str());
+
+	std::vector<Model> algeModel;
+	for (int index = 0; index < 23; index++)
+		algeModel.push_back(Model((GLchar*)alge[index]));
 
 	const char* hitbox = pathHitbox.c_str();
 	Model hitboxModel((GLchar*)hitbox);
@@ -430,6 +436,12 @@ int main(int argc, char** argv) {
 		DrawObject(shaderModel, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		//DrawObject(shaderModel, wallModel, view, projection, 0.2f);
 		// ** MODEL **
+
+		for (float index = 0; index < 23; index++)
+		{
+			DrawAlge(shaderAlge, algeModel[index], view, projection, 1.0f, 0.3, 0.0f, -3.5f, index, 0.0f);
+			DrawAlge(shaderAlge, algeModel[index], view, projection, 1.0f, 0.3f, 0.0f, -3.5f, index, 90.0f);
+		}
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
