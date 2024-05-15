@@ -31,7 +31,7 @@ Camera* pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
 
 bool VerifyHitbox(std::vector<glm::vec3> submarineHitbox, std::vector<glm::vec3> terrainHitbox)
 {
-	for (glm::vec3& submarineVertex: submarineHitbox)
+	for (glm::vec3& submarineVertex : submarineHitbox)
 		for (glm::vec3& terrainVertex : terrainHitbox)
 		{
 			float distance = glm::distance(submarineVertex, terrainVertex);
@@ -81,17 +81,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yOffset) {
 	pCamera->ProcessMouseScroll((float)yOffset);
-}
-
-// might not be necessary
-bool RotateLight = true;
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-		RotateLight = true;
-	}
-	if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-		RotateLight = false;
-	}
 }
 
 enum ESubmarineMovementType
@@ -180,14 +169,14 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) 
 			sgn = 1;
 		else
 			sgn = -1;
-		submarineAngle+=1.1*sqrtf(abs(submarineAccel))*sgn;
+		submarineAngle += 1.1 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVERIGHT:
 		if (submarineAccel > 0)
 			sgn = 1;
 		else
 			sgn = -1;
-		submarineAngle-=1.1*sqrtf(abs(submarineAccel)) * sgn;
+		submarineAngle -= 1.1 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVEVERTICAL:
 		submarineY += submarineVerticalAccel;

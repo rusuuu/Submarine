@@ -61,17 +61,59 @@ bool DrawSkybox(Shader shaderSkybox, glm::mat4& view, glm::mat4& projection) {
 	return true;
 }
 
-bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, glm::vec3 lightPos, float scaleFactor) {
+bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, glm::vec3 sunlightPos, glm::vec3 moonlightPos, float scaleFactor) {
 	// ** MODEL **
 	shaderModel.Use();
 
+	auto currentTime = std::chrono::system_clock::now();
+	auto currentTimeSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
+	auto currentTimeSecondsToInt = currentTimeSeconds.time_since_epoch().count();
+
+	int ambientValue;
+	ambientValue = currentTimeSecondsToInt % 86400;
+	float Ka;
+	if (ambientValue >= 0 && ambientValue < 5400)
+		Ka = 0.3;
+	if (ambientValue >= 5400 && ambientValue < 10800)
+		Ka = 0.4;
+	if (ambientValue >= 10800 && ambientValue < 16200)
+		Ka = 0.5;
+	if (ambientValue >= 16200 && ambientValue < 21600)
+		Ka = 0.6;
+	if (ambientValue >= 21600 && ambientValue < 27000)
+		Ka = 0.7;
+	if (ambientValue >= 27000 && ambientValue < 32400)
+		Ka = 0.8;
+	if (ambientValue >= 32400 && ambientValue < 37800)
+		Ka = 0.8;
+	if (ambientValue >= 37800 && ambientValue < 43200)
+		Ka = 0.7;
+	if (ambientValue >= 43200 && ambientValue < 48600)
+		Ka = 0.6;
+	if (ambientValue >= 48600 && ambientValue < 54000)
+		Ka = 0.5;
+	if (ambientValue >= 54000 && ambientValue < 59400)
+		Ka = 0.4;
+	if (ambientValue >= 59400 && ambientValue < 64800)
+		Ka = 0.3;
+	if (ambientValue >= 64800 && ambientValue < 70200)
+		Ka = 0.2;
+	if (ambientValue >= 70200 && ambientValue < 75600)
+		Ka = 0.1;
+	if (ambientValue >= 75600 && ambientValue < 81000)
+		Ka = 0.1;
+	if (ambientValue >= 81000 && ambientValue < 86400)
+		Ka = 0.2;
 	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetFloat("Ka", Ka);
 
 	shaderModel.SetMat4("view", view);
 	shaderModel.SetMat4("projection", projection);
 
 	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	shaderModel.SetVec3("lightPos", lightPos);
+	shaderModel.SetVec3("sunlightPos", sunlightPos);
+	shaderModel.SetVec3("moonlightPos", moonlightPos);
 	shaderModel.SetVec3("viewPos", pCamera->GetPosition());
 
 	// Draw the loaded model
@@ -99,7 +141,7 @@ bool DrawPropeller(Shader shaderModel, Model objectModel, glm::mat4& view, glm::
 
 	// Draw the loaded model
 	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(submarineX, submarineY+yPos, submarineZ)); // Move to scene centre
+	model = glm::translate(model, glm::vec3(submarineX, submarineY + yPos, submarineZ)); // Move to scene centre
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(propellerAngle), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -135,7 +177,7 @@ bool DrawSubmarine(Shader shaderModel, Model objectModel, glm::mat4& view, glm::
 
 bool DrawAndRotateObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor, float time, float speedFactor) {
 	float degrees = 90 + glfwGetTime() / speedFactor;
-	
+
 	// ** MODEL **
 	shaderModel.Use();
 
@@ -154,7 +196,7 @@ bool DrawAndRotateObject(Shader shaderModel, Model objectModel, glm::mat4& view,
 		time * glm::radians(180.0f) * speedFactor,
 		glm::vec3(0.0f, 0.0f, 1.0f)
 	);*/
-	 model = glm::rotate(model, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
 	shaderModel.SetMat4("model", model);
 	objectModel.Draw(shaderModel);
 	// ** MODEL **
@@ -239,15 +281,8 @@ bool RenderSceneWithLight(Shader shadowMappingDepthShader, Shader shadowMappingS
 }
 
 // lighting info
-glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
-
-void processLightPos(GLFWwindow* window) {
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		pCamera->Set(width, height, lightPos);
-	}
-}
+glm::vec3 sunlightPos(-2.0f, 4.0f, -1.0f);
+glm::vec3 moonlightPos(-2.0f, 4.0f, -1.0f);
 
 bool InitializeWindow(GLFWwindow*& window) {
 	// glfw: initialize and configure
@@ -286,7 +321,7 @@ int main(int argc, char** argv) {
 
 	GLFWwindow* window;
 	InitializeWindow(window);
-	
+
 	auto currentTime = std::chrono::system_clock::now();
 	auto currentTimeSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
 	auto currentTimeSecondsToInt = currentTimeSeconds.time_since_epoch().count();
@@ -317,13 +352,13 @@ int main(int argc, char** argv) {
 
 	const char* terrain = pathTerrain.c_str();
 	Model terrainModel((GLchar*)terrain);
-	
+
 	const char* hitbox = pathHitbox.c_str();
 	Model hitboxModel((GLchar*)hitbox);
 	std::vector<Vertex> submarineVertex = hitboxModel.GetMeshes()[0].vertices;
 	for (Vertex& vertex : submarineVertex)
 		submarineInitialHitbox.push_back(vertex.Position);
-	
+
 	const char* wall = pathWall.c_str();
 	Model wallModel((GLchar*)wall);
 	std::vector<Vertex> wallVertex = wallModel.GetMeshes()[0].vertices;
@@ -348,10 +383,10 @@ int main(int argc, char** argv) {
 	Shader shaderSkybox(pathToSkyBoxShaders + "skybox.vs", pathToSkyBoxShaders + "skybox.fs");
 	buildSkybox(shaderCubeMap, shaderSkybox, pathToTextures);
 	// ** SKYBOX **
-	
+
 	// ** WATER **
 	Shader shaderWater(pathToWaterShaders + "water.vs", pathToWaterShaders + "water.fs");
-	
+
 	const char* water = pathWater.c_str();
 	Model waterModel((GLchar*)water);
 	// ** WATER **
@@ -364,20 +399,19 @@ int main(int argc, char** argv) {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		if (RotateLight) {
-			//glm::radians(360.f)=6.28319 (am folosit constanta ca nu mergea daca foloseam glm::radians
-			lightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500))) - 15;
-			lightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500)));
-			//std::cout << lightPos.x << " " << lightPos.y << " " << currentTimeSecondsToInt << " " << 6.28319 * currentTimeSecondsToInt << " " << "\n";
-		}
+		//glm::radians(360.f)=6.28319 (am folosit constanta ca nu mergea daca foloseam glm::radians
+		sunlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500))) - 15;
+		sunlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500)));
+		moonlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 9300))) - 15;
+		moonlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 9300)));
+		//std::cout << lightPos.x << " " << lightPos.y << " " << currentTimeSecondsToInt << " " << 6.28319 * currentTimeSecondsToInt << " " << "\n";
 
-		// input
+	// input
 		processInput(window);
-		processLightPos(window);
 		processSubmarineMovement(window);
 
 		glm::mat4 view = pCamera->GetViewMatrix();
-		RenderSceneWithLight(shadowMappingDepthShader, shadowMappingShader, depthMap, depthMapFBO, lightPos, view, projection);
+		RenderSceneWithLight(shadowMappingDepthShader, shadowMappingShader, depthMap, depthMapFBO, sunlightPos, view, projection);
 
 		DrawSkybox(shaderSkybox, view, projection);
 
@@ -388,12 +422,12 @@ int main(int argc, char** argv) {
 
 		auto t_now = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
-		
+
 		//DrawAndRotateObject(shaderModel, propellerModel, view, projection, 0.5f, time, 2.0);
 		//DrawAndRotateObject(shaderModel, submarineModel, view, projection, 0.5f, time, 2.0);
 
-		DrawObject(shaderModel, terrainModel, view, projection, lightPos, 0.2f);
-		DrawObject(shaderModel, waterModel, view, projection, lightPos, 0.2f);
+		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
+		DrawObject(shaderModel, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		//DrawObject(shaderModel, wallModel, view, projection, 0.2f);
 		// ** MODEL **
 

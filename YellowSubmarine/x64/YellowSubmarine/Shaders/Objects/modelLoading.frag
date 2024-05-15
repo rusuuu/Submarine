@@ -7,13 +7,18 @@ in vec2 TexCoords;
 out vec4 color;
 
 uniform vec3 lightColor;
-uniform vec3 lightPos;
+uniform vec3 sunlightPos;
+uniform vec3 moonlightPos;
 uniform vec3 viewPos;
 
-uniform float Ka = 0.0;
-uniform float Kd = 0.5;
-uniform float Ks = 0.5;
-uniform float n = 16;
+uniform float Ka = 0.2;
+uniform float sunKd = 0.8;
+uniform float sunKs = 0.5;
+uniform float sunN = 8;
+
+uniform float moonKd = 0.5;
+uniform float moonKs = 0.5;
+uniform float moonN = 2;
 
 uniform sampler2D texture_diffuse;
 
@@ -22,14 +27,18 @@ void main( )
     vec3 ambient = Ka * lightColor;
 
     vec3 norm = normalize (Normal);
-    vec3 lightDir = normalize(lightPos-FragPos);
-    float diff = Kd * max(dot(norm, lightDir),0.0);
+    vec3 sunlightDir = normalize(sunlightPos-FragPos);
+    float sunDiff = sunKd * max(dot(norm, sunlightDir),0.0);
+    vec3 moonlightDir = normalize(moonlightPos-FragPos);
+    float moonDiff = moonKd * max(dot(norm, moonlightDir),0.0);
 
     vec3 viewDir = normalize (viewPos-FragPos);
-    vec3 reflectDir = reflect (-lightDir, norm);
-    float spec = Ks * pow(max(dot(viewDir, reflectDir),0.0),n);
+    vec3 sunReflectDir = reflect (-sunlightDir, norm);
+    float sunSpec = sunKs * pow(max(dot(viewDir, sunReflectDir),0.0),sunN);
+    vec3 moonReflectDir = reflect (-moonlightDir, norm);
+    float moonSpec = moonKs * pow(max(dot(viewDir, moonReflectDir),0.0),moonN);
 
-    vec3 result = (ambient+diff+spec) * vec3(texture( texture_diffuse, TexCoords ));
+    vec3 result = (ambient+sunDiff+sunSpec+moonDiff+moonSpec) * vec3(texture( texture_diffuse, TexCoords ));
     color = vec4( result, 1.0);
 
 }
