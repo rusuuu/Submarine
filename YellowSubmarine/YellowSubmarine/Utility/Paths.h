@@ -16,6 +16,7 @@ std::string pathToDetachedSubmarine;
 
 std::string pathToTerrain;
 std::string pathToWater;
+std::string pathToHitbox;
 
 std::string pathToSkyBoxTextures;
 std::string pathToSkyBoxShaders;
@@ -48,6 +49,7 @@ bool InitializePaths(std::string strFullExeFileName) {	//Initializes all the pat
 	
 	pathToTerrain = pathToExe + "\\Objects\\Terrain\\";
 	pathToWater = pathToExe + "\\Objects\\Water\\";
+	pathToHitbox = pathToExe + "\\Objects\\Hitboxes\\";
 
 	pathToSkyBoxTextures = pathToTextures + "Skybox\\";
 	pathToSkyBoxShaders = pathToShaders + "Skybox\\";

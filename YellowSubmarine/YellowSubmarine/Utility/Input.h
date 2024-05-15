@@ -21,8 +21,29 @@ float submarineAngle = 0.0f;
 float submarineAccel = 0.0f;
 float submarineVerticalAccel = 0.0f;
 float propellerAngle = 0.0f;
+bool block = false;
+bool lastMoveForward;
+
+std::vector<glm::vec3> submarineInitialHitbox;
+std::vector<glm::vec3> terrainInitialHitbox;
 
 Camera* pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
+
+bool VerifyHitbox(std::vector<glm::vec3> submarineHitbox, std::vector<glm::vec3> terrainHitbox)
+{
+	for (glm::vec3& submarineVertex: submarineHitbox)
+		for (glm::vec3& terrainVertex : terrainHitbox)
+		{
+			float distance = glm::distance(submarineVertex, terrainVertex);
+			if (distance < 0.5f)
+			{
+				std::cout << block << " " << lastMoveForward << " " << submarineAccel << "\n";
+				return true; // Daca este, avem o coliziune
+			}
+		}
+	block = false;
+	return false;
+}
 
 void processInput(GLFWwindow* window) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -82,19 +103,91 @@ enum ESubmarineMovementType
 	MOVEVERTICAL
 };
 
+glm::mat4 DetermineSubmarineTransfMatrix(float scaleFactor) {
+	// ** MODEL **
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+	// ** MODEL **
+
+	return model;
+}
+
+glm::mat4 DetermineTerrainTransfMatrix(float scaleFactor) {
+	// ** MODEL **
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0.0, 0.0, 0.0)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	// ** MODEL **
+
+	return model;
+}
+
+std::vector<glm::vec3> TransformHitbox(const std::vector<glm::vec3>& hitbox, const glm::mat4& transform) {
+	std::vector<glm::vec3> transformedHitbox;
+	transformedHitbox.reserve(hitbox.size());
+
+	for (const auto& vertex : hitbox) {
+		glm::vec4 transformedVertex = transform * glm::vec4(vertex, 1.0f);
+		transformedHitbox.push_back(glm::vec3(transformedVertex));
+	}
+
+	return transformedHitbox;
+}
+
 void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) {
 	//float velocity = (float)(cameraSpeedFactor * deltaTime);
+	int sgn;
+	glm::mat4 submarineTransformMatrix;
+	glm::mat4 terrainTransformMatrix;
+	std::vector<glm::vec3> submarineHitbox;
+	std::vector<glm::vec3> terrainHitbox;
 	switch (direction) {
 	case ESubmarineMovementType::MOVE:
-		submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
-		submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
-		propellerAngle -= 150*submarineAccel;
+		submarineTransformMatrix = DetermineSubmarineTransfMatrix(1.0f);
+		submarineHitbox = TransformHitbox(submarineInitialHitbox, submarineTransformMatrix);
+		terrainTransformMatrix = DetermineTerrainTransfMatrix(0.2f);
+		terrainHitbox = TransformHitbox(terrainInitialHitbox, terrainTransformMatrix);
+		if (!VerifyHitbox(submarineHitbox, terrainHitbox))
+		{
+			submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
+			submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
+			propellerAngle -= 150 * submarineAccel;
+		}
+		else
+		{
+			if (submarineAccel > 0.0f && !block)
+				lastMoveForward = true;
+			if (submarineAccel < 0.0f && !block)
+				lastMoveForward = false;
+			if (!block)
+			{
+				block = true;
+				submarineAccel = 0.0f;
+			}
+			if ((submarineAccel > 0.0f && !lastMoveForward) || (submarineAccel < 0.0f && lastMoveForward))
+			{
+				std::cout << "Do it?";
+				submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
+				submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
+				propellerAngle -= 150 * submarineAccel;
+			}
+		}
 		break;
 	case ESubmarineMovementType::MOVELEFT:
-		submarineAngle+=1.1*sqrtf(abs(submarineAccel));
+		if (submarineAccel > 0)
+			sgn = 1;
+		else
+			sgn = -1;
+		submarineAngle+=1.1*sqrtf(abs(submarineAccel))*sgn;
 		break;
 	case ESubmarineMovementType::MOVERIGHT:
-		submarineAngle-=1.1*sqrtf(abs(submarineAccel));
+		if (submarineAccel > 0)
+			sgn = 1;
+		else
+			sgn = -1;
+		submarineAngle-=1.1*sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVEVERTICAL:
 		submarineY += submarineVerticalAccel;
@@ -115,16 +208,16 @@ void processSubmarineMovement(GLFWwindow* window) {	// process all input: query 
 	else
 	{
 		if (submarineVerticalAccel < 0.0f)
-			submarineVerticalAccel += 0.00005f;
+			submarineVerticalAccel += 0.0000375f;
 		if (submarineVerticalAccel > 0.0f)
-			submarineVerticalAccel -= 0.00005f;
+			submarineVerticalAccel -= 0.0000375f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && (!block || (block && !lastMoveForward)))
 			if (submarineAccel < 0.02f)
 				submarineAccel += 0.00002f;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && (!block || (block && lastMoveForward)))
 			if (submarineAccel > -0.02f)
 				submarineAccel -= 0.00002f;
 	}

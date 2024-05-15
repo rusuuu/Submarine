@@ -289,6 +289,8 @@ int main(int argc, char** argv) {
 	std::string pathProp = pathToDetachedSubmarine + "prop_obj.obj";
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
+	std::string pathHitbox = pathToHitbox + "hitbox.obj";
+	std::string pathWall = pathToHitbox + "hitboxWall.obj";
 
 	const char* submarine = pathSub.c_str();
 	Model submarineModel((GLchar*)submarine);
@@ -298,6 +300,18 @@ int main(int argc, char** argv) {
 
 	const char* terrain = pathTerrain.c_str();
 	Model terrainModel((GLchar*)terrain);
+	
+	const char* hitbox = pathHitbox.c_str();
+	Model hitboxModel((GLchar*)hitbox);
+	std::vector<Vertex> submarineVertex = hitboxModel.GetMeshes()[0].vertices;
+	for (Vertex& vertex : submarineVertex)
+		submarineInitialHitbox.push_back(vertex.Position);
+	
+	const char* wall = pathWall.c_str();
+	Model wallModel((GLchar*)wall);
+	std::vector<Vertex> wallVertex = wallModel.GetMeshes()[0].vertices;
+	for (Vertex& vertex : wallVertex)
+		terrainInitialHitbox.push_back(vertex.Position);
 
 	unsigned int depthMap;
 	unsigned int depthMapFBO;
@@ -363,6 +377,7 @@ int main(int argc, char** argv) {
 
 		DrawObject(shaderModel, terrainModel, view, projection, 0.2f);
 		DrawObject(shaderModel, waterModel, view, projection, 0.2f);
+		//DrawObject(shaderModel, wallModel, view, projection, 0.2f);
 		// ** MODEL **
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
