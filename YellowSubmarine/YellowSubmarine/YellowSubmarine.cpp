@@ -236,6 +236,17 @@ bool RenderSceneWithLight(Shader shadowMappingDepthShader, Shader shadowMappingS
 	return true;
 }
 
+// lighting info
+glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+
+void processLightPos(GLFWwindow* window) {
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+		pCamera->Set(width, height, lightPos);
+	}
+}
+
 bool InitializeWindow(GLFWwindow*& window) {
 	// glfw: initialize and configure
 	glfwInit();
@@ -273,6 +284,10 @@ int main(int argc, char** argv) {
 
 	GLFWwindow* window;
 	InitializeWindow(window);
+	
+	auto currentTime = std::chrono::system_clock::now();
+	auto currentTimeSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
+	auto currentTimeSecondsToInt = currentTimeSeconds.time_since_epoch().count();
 
 	// Build and compile shaders
 	std::string strFullExeFileName = argv[0];
@@ -322,9 +337,6 @@ int main(int argc, char** argv) {
 	shadowMappingShader.SetInt("diffuseTexture", 0);
 	shadowMappingShader.SetInt("shadowMap", 1);
 
-	// lighting info
-	glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
-
 	glEnable(GL_CULL_FACE);
 
 	glm::mat4 projection = glm::perspective(pCamera->GetZoom(), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -351,12 +363,15 @@ int main(int argc, char** argv) {
 		lastFrame = currentFrame;
 
 		if (RotateLight) {
-			lightPos.x = sin(currentFrame);
-			lightPos.z = cos(currentFrame);
+			//glm::radians(360.f)=6.28319 (am folosit constanta ca nu mergea daca foloseam glm::radians
+			lightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500))) - 15;
+			lightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500)));
+			//std::cout << lightPos.x << " " << lightPos.y << " " << currentTimeSecondsToInt << " " << 6.28319 * currentTimeSecondsToInt << " " << "\n";
 		}
 
 		// input
 		processInput(window);
+		processLightPos(window);
 		processSubmarineMovement(window);
 
 		glm::mat4 view = pCamera->GetViewMatrix();
