@@ -44,10 +44,53 @@ bool DrawSkybox(Shader shaderSkybox, glm::mat4& view, glm::mat4& projection) {
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	shaderSkybox.Use();
 
+	auto currentTime = std::chrono::system_clock::now();
+	auto currentTimeSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
+	auto currentTimeSecondsToInt = currentTimeSeconds.time_since_epoch().count();
+
+	int ambientValue;
+	ambientValue = currentTimeSecondsToInt % 86400;
+	float Ka;
+	if (ambientValue >= 0 && ambientValue < 5400)
+		Ka = 0.3;
+	if (ambientValue >= 5400 && ambientValue < 10800)
+		Ka = 0.4;
+	if (ambientValue >= 10800 && ambientValue < 16200)
+		Ka = 0.5;
+	if (ambientValue >= 16200 && ambientValue < 21600)
+		Ka = 0.6;
+	if (ambientValue >= 21600 && ambientValue < 27000)
+		Ka = 0.7;
+	if (ambientValue >= 27000 && ambientValue < 32400)
+		Ka = 0.8;
+	if (ambientValue >= 32400 && ambientValue < 37800)
+		Ka = 0.8;
+	if (ambientValue >= 37800 && ambientValue < 43200)
+		Ka = 0.7;
+	if (ambientValue >= 43200 && ambientValue < 48600)
+		Ka = 0.6;
+	if (ambientValue >= 48600 && ambientValue < 54000)
+		Ka = 0.5;
+	if (ambientValue >= 54000 && ambientValue < 59400)
+		Ka = 0.4;
+	if (ambientValue >= 59400 && ambientValue < 64800)
+		Ka = 0.3;
+	if (ambientValue >= 64800 && ambientValue < 70200)
+		Ka = 0.2;
+	if (ambientValue >= 70200 && ambientValue < 75600)
+		Ka = 0.1;
+	if (ambientValue >= 75600 && ambientValue < 81000)
+		Ka = 0.1;
+	if (ambientValue >= 81000 && ambientValue < 86400)
+		Ka = 0.2;
+
+	shaderSkybox.SetFloat("Ka", Ka);
+
 	view = glm::mat4(glm::mat3(pCamera->GetViewMatrix())); // remove translation from the view matrix
 
 	shaderSkybox.SetMat4("view", view);
 	shaderSkybox.SetMat4("projection", projection);
+	shaderSkybox.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 	// skybox cube
 	glBindVertexArray(skyboxVAO);
