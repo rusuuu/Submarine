@@ -21,28 +21,63 @@ float submarineAngle = 0.0f;
 float submarineAccel = 0.0f;
 float submarineVerticalAccel = 0.0f;
 float propellerAngle = 0.0f;
-bool block = false;
-bool lastMoveForward;
 
 std::vector<glm::vec3> submarineInitialHitbox;
 std::vector<glm::vec3> terrainInitialHitbox;
 
 Camera* pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
 
-bool VerifyHitbox(std::vector<glm::vec3> submarineHitbox, std::vector<glm::vec3> terrainHitbox)
-{
-	for (glm::vec3& submarineVertex : submarineHitbox)
-		for (glm::vec3& terrainVertex : terrainHitbox)
-		{
-			float distance = glm::distance(submarineVertex, terrainVertex);
-			if (distance < 0.5f)
-			{
-				std::cout << block << " " << lastMoveForward << " " << submarineAccel << "\n";
-				return true; // Daca este, avem o coliziune
+struct Face {
+	glm::vec3 vertices[3];
+	glm::vec3 normal;
+};
+
+glm::vec3 projectPointOnPlane(const glm::vec3& point, const Face& face) {
+	float distance = glm::dot(point - face.vertices[0], face.normal);
+	return point - distance * face.normal;
+}
+
+bool isPointInTriangle(const glm::vec3& point, const Face& face) {
+	for (int i = 0; i < 3; ++i) {
+		glm::vec3 edge = face.vertices[(i + 1) % 3] - face.vertices[i];
+		glm::vec3 toPoint = point - face.vertices[i];
+		glm::vec3 crossProduct = glm::cross(edge, toPoint);
+		if (glm::dot(crossProduct, face.normal) < 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool detectCollision(const std::vector<glm::vec3> submarineHitbox, const std::vector<Face>& faces) {
+	for (const auto& face : faces) {
+		for (const auto& vertex : submarineHitbox) {
+			glm::vec3 projectedPoint = projectPointOnPlane(vertex, face);
+			if (isPointInTriangle(projectedPoint, face)) {
+				float distance = glm::length(projectedPoint - vertex);
+				if (distance < 0.02f)
+				{
+					if (submarineVerticalAccel < 0)
+						submarineY += (0.02005f - distance);
+					if (submarineVerticalAccel > 0)
+						submarineY -= (0.02005f - distance);
+					if (submarineAccel > 0)
+					{
+						submarineZ += (0.02005f - distance) * cos(glm::radians(submarineAngle));
+						submarineX += (0.02005f - distance) * sin(glm::radians(submarineAngle));
+					}
+					if (submarineAccel < 0)
+					{
+						submarineZ += (-0.02005f + distance) * cos(glm::radians(submarineAngle));
+						submarineX += (-0.02005f + distance) * sin(glm::radians(submarineAngle));
+					}
+					return true; // Daca este, avem o coliziune
+				}
 			}
 		}
-	block = false;
-	return false;
+	}
+
+	return false; // Nicio coliziune
 }
 
 void processInput(GLFWwindow* window) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -103,16 +138,6 @@ glm::mat4 DetermineSubmarineTransfMatrix(float scaleFactor) {
 	return model;
 }
 
-glm::mat4 DetermineTerrainTransfMatrix(float scaleFactor) {
-	// ** MODEL **
-	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(0.0, 0.0, 0.0)); // Move to scene centre
-	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
-	// ** MODEL **
-
-	return model;
-}
-
 std::vector<glm::vec3> TransformHitbox(const std::vector<glm::vec3>& hitbox, const glm::mat4& transform) {
 	std::vector<glm::vec3> transformedHitbox;
 	transformedHitbox.reserve(hitbox.size());
@@ -125,20 +150,16 @@ std::vector<glm::vec3> TransformHitbox(const std::vector<glm::vec3>& hitbox, con
 	return transformedHitbox;
 }
 
-void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) {
+void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, const std::vector<Face>& faces) {
 	//float velocity = (float)(cameraSpeedFactor * deltaTime);
 	int sgn;
 	glm::mat4 submarineTransformMatrix;
-	glm::mat4 terrainTransformMatrix;
 	std::vector<glm::vec3> submarineHitbox;
-	std::vector<glm::vec3> terrainHitbox;
 	switch (direction) {
 	case ESubmarineMovementType::MOVE:
 		submarineTransformMatrix = DetermineSubmarineTransfMatrix(1.0f);
 		submarineHitbox = TransformHitbox(submarineInitialHitbox, submarineTransformMatrix);
-		terrainTransformMatrix = DetermineTerrainTransfMatrix(0.2f);
-		terrainHitbox = TransformHitbox(terrainInitialHitbox, terrainTransformMatrix);
-		if (!VerifyHitbox(submarineHitbox, terrainHitbox))
+		if (!detectCollision(submarineHitbox, faces))
 		{
 			submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
 			submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
@@ -146,22 +167,8 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) 
 		}
 		else
 		{
-			if (submarineAccel > 0.0f && !block)
-				lastMoveForward = true;
-			if (submarineAccel < 0.0f && !block)
-				lastMoveForward = false;
-			if (!block)
-			{
-				block = true;
-				submarineAccel = 0.0f;
-			}
-			if ((submarineAccel > 0.0f && !lastMoveForward) || (submarineAccel < 0.0f && lastMoveForward))
-			{
-				std::cout << "Do it?";
-				submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
-				submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
-				propellerAngle -= 150 * submarineAccel;
-			}
+			submarineAccel = 0;
+			submarineVerticalAccel = 0;
 		}
 		break;
 	case ESubmarineMovementType::MOVELEFT:
@@ -179,12 +186,22 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime) 
 		submarineAngle -= 1.1 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVEVERTICAL:
-		submarineY += submarineVerticalAccel;
+		submarineTransformMatrix = DetermineSubmarineTransfMatrix(1.0f);
+		submarineHitbox = TransformHitbox(submarineInitialHitbox, submarineTransformMatrix);
+		if (!detectCollision(submarineHitbox, faces))
+		{
+			submarineY += submarineVerticalAccel;
+		}
+		else
+		{
+			submarineAccel = 0;
+			submarineVerticalAccel = 0;
+		}
 		break;
 	}
 }
 
-void processSubmarineMovement(GLFWwindow* window) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.0075)
@@ -203,10 +220,10 @@ void processSubmarineMovement(GLFWwindow* window) {	// process all input: query 
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && (!block || (block && !lastMoveForward)))
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			if (submarineAccel < 0.02f)
 				submarineAccel += 0.00002f;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && (!block || (block && lastMoveForward)))
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 			if (submarineAccel > -0.02f)
 				submarineAccel -= 0.00002f;
 	}
@@ -217,11 +234,11 @@ void processSubmarineMovement(GLFWwindow* window) {	// process all input: query 
 		if (submarineAccel > 0.0f)
 			submarineAccel -= 0.00001f;
 	}
-	ProcessKeyboardMovement(MOVE, deltaTime);
-	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		ProcessKeyboardMovement(MOVELEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		ProcessKeyboardMovement(MOVERIGHT, deltaTime);
+	ProcessKeyboardMovement(MOVE, deltaTime, faces);
+	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime, faces);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && submarineAccel != 0.0f)
+		ProcessKeyboardMovement(MOVELEFT, deltaTime, faces);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && submarineAccel != 0.0f)
+		ProcessKeyboardMovement(MOVERIGHT, deltaTime, faces);
 
 }

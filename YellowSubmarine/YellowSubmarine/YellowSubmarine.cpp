@@ -350,6 +350,14 @@ bool InitializeWindow(GLFWwindow*& window) {
 	return true;
 }
 
+void calculateFaceNormals(std::vector<Face>& faces) {
+	for (auto& face : faces) {
+		glm::vec3 edge1 = face.vertices[1] - face.vertices[0];
+		glm::vec3 edge2 = face.vertices[2] - face.vertices[0];
+		face.normal = glm::normalize(glm::cross(edge1, edge2));
+	}
+}
+
 int main(int argc, char** argv) {
 
 	auto t_start = std::chrono::high_resolution_clock::now();
@@ -408,6 +416,40 @@ int main(int argc, char** argv) {
 	for (Vertex& vertex : submarineVertex)
 		submarineInitialHitbox.push_back(vertex.Position);
 
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(pathWall.c_str(),
+		aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality);
+
+	if (!scene || !scene->mRootNode || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
+		std::cerr << "Error: " << importer.GetErrorString() << std::endl;
+		return -1;
+	}
+
+	std::vector<Face> faces;
+
+	// Parcurgem toate mesh-urile
+	for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		aiMesh* mesh = scene->mMeshes[meshIndex];
+
+		// Extragem toate fețele (triunghiurile) din mesh
+		for (unsigned int faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+			aiFace& aiFace = mesh->mFaces[faceIndex];
+
+			if (aiFace.mNumIndices == 3) { // Ne asigurăm că avem un triunghi
+				Face face;
+				for (unsigned int i = 0; i < 3; ++i) {
+					aiVector3D aiVertex = mesh->mVertices[aiFace.mIndices[i]];
+					face.vertices[i] = glm::vec3(aiVertex.x*0.2, aiVertex.y*0.2, aiVertex.z*0.2);
+				}
+				faces.push_back(face);
+			}
+		}
+	}
+
+	calculateFaceNormals(faces);
+
+
+
 	const char* wall = pathWall.c_str();
 	Model wallModel((GLchar*)wall);
 	std::vector<Vertex> wallVertex = wallModel.GetMeshes()[0].vertices;
@@ -457,7 +499,7 @@ int main(int argc, char** argv) {
 
 	// input
 		processInput(window);
-		processSubmarineMovement(window);
+		processSubmarineMovement(window, faces);
 
 		glm::mat4 view = pCamera->GetViewMatrix();
 		RenderSceneWithLight(shadowMappingDepthShader, shadowMappingShader, depthMap, depthMapFBO, sunlightPos, view, projection);
@@ -477,10 +519,10 @@ int main(int argc, char** argv) {
 
 		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		DrawObject(shaderModel, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f);
-		//DrawObject(shaderModel, wallModel, view, projection, 0.2f);
+		DrawObject(shaderModel, wallModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		// ** MODEL **
 
-		for (float index = 0; index < 23; index++)
+		for (int index = 0; index < 23; index++)
 		{
 			DrawAlge(shaderAlge, algeModel[index], view, projection, 1.0f, 0.3, 0.0f, -3.5f, index, 0.0f);
 			DrawAlge(shaderAlge, algeModel[index], view, projection, 1.0f, 0.3f, 0.0f, -3.5f, index, 90.0f);
