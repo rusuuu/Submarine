@@ -375,39 +375,18 @@ bool DrawWater(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4
 
 	int ambientValue;
 	ambientValue = currentTimeSecondsToInt % 86400;
+	int segment = ambientValue / 5400;
 	float Ka;
-	if (ambientValue >= 0 && ambientValue < 5400)
-		Ka = 0.3;
-	if (ambientValue >= 5400 && ambientValue < 10800)
-		Ka = 0.4;
-	if (ambientValue >= 10800 && ambientValue < 16200)
-		Ka = 0.5;
-	if (ambientValue >= 16200 && ambientValue < 21600)
-		Ka = 0.6;
-	if (ambientValue >= 21600 && ambientValue < 27000)
-		Ka = 0.7;
-	if (ambientValue >= 27000 && ambientValue < 32400)
-		Ka = 0.8;
-	if (ambientValue >= 32400 && ambientValue < 37800)
-		Ka = 0.8;
-	if (ambientValue >= 37800 && ambientValue < 43200)
-		Ka = 0.7;
-	if (ambientValue >= 43200 && ambientValue < 48600)
-		Ka = 0.6;
-	if (ambientValue >= 48600 && ambientValue < 54000)
-		Ka = 0.5;
-	if (ambientValue >= 54000 && ambientValue < 59400)
-		Ka = 0.4;
-	if (ambientValue >= 59400 && ambientValue < 64800)
-		Ka = 0.3;
-	if (ambientValue >= 64800 && ambientValue < 70200)
-		Ka = 0.2;
-	if (ambientValue >= 70200 && ambientValue < 75600)
+
+	if (segment <= 7) {
+		Ka = 0.2 + 0.1 * segment;
+	}
+	else if (segment <= 15) {
+		Ka = 0.8 - 0.1 * (segment - 7);
+	}
+	else {
 		Ka = 0.1;
-	if (ambientValue >= 75600 && ambientValue < 81000)
-		Ka = 0.1;
-	if (ambientValue >= 81000 && ambientValue < 86400)
-		Ka = 0.2;
+	}
 	view = pCamera->GetViewMatrix();
 
 	shaderModel.SetFloat("Ka", Ka);
@@ -460,6 +439,33 @@ bool DrawInterior(Shader shaderModel, Model objectModel, glm::mat4& view, glm::m
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle - 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(-submarineVerticalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
+bool DrawLightSource(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, glm::vec3 lightPos, float scaleFactor) {
+	// ** MODEL **
+	shaderModel.Use();
+
+	auto currentTime = std::chrono::system_clock::now();
+	auto currentTimeSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
+	auto currentTimeSecondsToInt = currentTimeSeconds.time_since_epoch().count();
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	shaderModel.SetVec3("viewPos", pCamera->GetPosition());
+
+	// Draw the loaded model
+	glm::mat4 model;
+	model = glm::translate(model, lightPos); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	//model = glm::rotate(model, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
 	shaderModel.SetMat4("model", model);
 	objectModel.Draw(shaderModel);
 	// ** MODEL **
@@ -616,6 +622,7 @@ int main(int argc, char** argv) {
 	Shader shaderModel(pathToObjectShaders + "modelLoading.vs", pathToObjectShaders + "modelLoading.frag");
 	Shader shaderAlge(pathToObjectShaders + "algeShader.vs", pathToObjectShaders + "algeShader.frag");
 	Shader shaderInterior(pathToObjectShaders + "interiorShader.vs", pathToObjectShaders + "interiorShader.frag");
+	Shader shaderLighting(pathToObjectShaders + "lightingShader.vs", pathToObjectShaders + "lightingShader.frag");
 
 	// Load models
 	std::string pathSub = pathToDetachedSubmarine + "sub_obj.obj";
@@ -625,6 +632,8 @@ int main(int argc, char** argv) {
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
 	std::string pathInterior = pathToInterior + "interior.obj";
+	std::string pathSun = pathToSun + "13913_Sun_v2_l3.obj";
+	std::string pathMoon = pathToMoon + "moon.obj";
 
 	std::vector<std::string> pathAlge;
 	for (int index = 0; index < 23; index++)
@@ -651,6 +660,12 @@ int main(int argc, char** argv) {
 
 	const char* interior = pathInterior.c_str();
 	Model interiorModel((GLchar*)interior);
+
+	const char* sun = pathSun.c_str();
+	Model sunModel((GLchar*)sun);
+
+	const char* moon = pathMoon.c_str();
+	Model moonModel((GLchar*)moon);
 
 	std::vector<const char*> alge;
 	for (int index = 0; index < 23; index++)
@@ -795,6 +810,8 @@ int main(int argc, char** argv) {
 		//DrawAndRotateObject(shaderModel, submarineModel, view, projection, 0.5f, time, 2.0);
 
 		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
+		DrawLightSource(shaderLighting, moonModel, view, projection, moonlightPos, 0.005f);
+		DrawLightSource(shaderLighting, sunModel, view, projection, sunlightPos, 0.005f);
 		if (firstPerson)
 			DrawInterior(shaderInterior, interiorModel, view, projection, 0.01f);
 
