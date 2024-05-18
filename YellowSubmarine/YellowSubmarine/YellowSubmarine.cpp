@@ -178,7 +178,7 @@ bool DrawFlaps(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4
 	glm::mat4 model;
 	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ) + glm::vec3(rotatedPosition)); // Move to scene centre
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
-	model = glm::rotate(model, glm::radians(submarineAngle+angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineAngle + angle), glm::vec3(0.0f, 1.0f, 0.0f));
 	if (angle == 0)
 	{
 		model = glm::rotate(model, glm::radians(-submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -446,6 +446,41 @@ bool DrawInterior(Shader shaderModel, Model objectModel, glm::mat4& view, glm::m
 	return true;
 }
 
+bool DrawShatter(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor)
+{
+	shaderModel.Use();
+
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+	// Draw the loaded model
+	glm::vec3 relativePosition(0.0f, 0.20f, -0.45f);
+
+	// Crează o matrice de rotație pentru rotația pe axa Y
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+	glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX;
+
+	// Aplică rotația asupra poziției relative
+	glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
+
+	// Calculează poziția absolută a camerei adăugând poziția submarinului
+	glm::vec3 interiorPosition = glm::vec3(rotatedPosition) + glm::vec3(submarineX, submarineY, submarineZ);
+	glm::mat4 model;
+	model = glm::translate(model, interiorPosition); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	model = glm::rotate(model, glm::radians(submarineAngle - 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-submarineVerticalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
 bool DrawLightSource(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, glm::vec3 lightPos, float scaleFactor) {
 	// ** MODEL **
 	shaderModel.Use();
@@ -622,6 +657,7 @@ int main(int argc, char** argv) {
 	Shader shaderModel(pathToObjectShaders + "modelLoading.vs", pathToObjectShaders + "modelLoading.frag");
 	Shader shaderAlge(pathToObjectShaders + "algeShader.vs", pathToObjectShaders + "algeShader.frag");
 	Shader shaderInterior(pathToObjectShaders + "interiorShader.vs", pathToObjectShaders + "interiorShader.frag");
+	Shader shaderShatter(pathToObjectShaders + "shatterShader.vs", pathToObjectShaders + "shatterShader.frag");
 	Shader shaderLighting(pathToObjectShaders + "lightingShader.vs", pathToObjectShaders + "lightingShader.frag");
 
 	// Load models
@@ -632,6 +668,7 @@ int main(int argc, char** argv) {
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
 	std::string pathInterior = pathToInterior + "interior.obj";
+	std::string pathShatter = pathToShatter + "shatter.obj";
 	std::string pathSun = pathToSun + "13913_Sun_v2_l3.obj";
 	std::string pathMoon = pathToMoon + "moon.obj";
 
@@ -666,6 +703,9 @@ int main(int argc, char** argv) {
 
 	const char* moon = pathMoon.c_str();
 	Model moonModel((GLchar*)moon);
+
+	const char* shatter = pathShatter.c_str();
+	Model shatterModel((GLchar*)shatter);
 
 	std::vector<const char*> alge;
 	for (int index = 0; index < 23; index++)
@@ -704,7 +744,7 @@ int main(int argc, char** argv) {
 				Face face;
 				for (unsigned int i = 0; i < 3; ++i) {
 					aiVector3D aiVertex = mesh->mVertices[aiFace.mIndices[i]];
-					face.vertices[i] = glm::vec3(aiVertex.x*0.2, aiVertex.y*0.2, aiVertex.z*0.2);
+					face.vertices[i] = glm::vec3(aiVertex.x * 0.2, aiVertex.y * 0.2, aiVertex.z * 0.2);
 				}
 				faces.push_back(face);
 			}
@@ -777,7 +817,7 @@ int main(int argc, char** argv) {
 			// Crează o matrice de rotație pentru rotația pe axa Y
 			glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
 			glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
-			glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX; 
+			glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX;
 
 			// Aplică rotația asupra poziției relative
 			glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
@@ -813,7 +853,11 @@ int main(int argc, char** argv) {
 		DrawLightSource(shaderLighting, moonModel, view, projection, moonlightPos, 0.005f);
 		DrawLightSource(shaderLighting, sunModel, view, projection, sunlightPos, 0.005f);
 		if (firstPerson)
+		{
 			DrawInterior(shaderInterior, interiorModel, view, projection, 0.01f);
+			if (broken)
+				DrawShatter(shaderShatter, shatterModel, view, projection, 0.01f);
+		}
 
 		//DrawObject(shaderModel, wallModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		// ** MODEL **

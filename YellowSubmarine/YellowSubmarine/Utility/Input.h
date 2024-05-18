@@ -24,6 +24,8 @@ float submarineAccel = 0.0f;
 float submarineVerticalAccel = 0.0f;
 float propellerAngle = 0.0f;
 
+bool broken = false;
+
 std::vector<glm::vec3> submarineInitialHitbox;
 std::vector<glm::vec3> terrainInitialHitbox;
 
@@ -173,6 +175,7 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 			submarineAccel = 0;
 			submarineVerticalAccel = 0;
 			submarineVerticalAngle = 0;
+			broken = true;
 		}
 		break;
 	case ESubmarineMovementType::MOVELEFT:
