@@ -36,6 +36,12 @@ struct Face {
 	glm::vec3 normal;
 };
 
+struct Treasure
+{
+	std::vector<Face> hitbox;
+	bool collected = false;
+};
+
 glm::vec3 projectPointOnPlane(const glm::vec3& point, const Face& face) {
 	float distance = glm::dot(point - face.vertices[0], face.normal);
 	return point - distance * face.normal;
@@ -59,28 +65,28 @@ bool detectCollision(const std::vector<glm::vec3> submarineHitbox, const std::ve
 			glm::vec3 projectedPoint = projectPointOnPlane(vertex, face);
 			if (isPointInTriangle(projectedPoint, face)) {
 				float distance = glm::length(projectedPoint - vertex);
-				if (distance < 0.02f)
+				if (distance < 0.35f)
 				{
 					if (submarineVerticalAccel < 0)
-						submarineY += (0.02005f - distance);
+						submarineY += (0.3501f - distance);
 					if (submarineVerticalAccel > 0)
-						submarineY -= (0.02005f - distance);
+						submarineY -= (0.3501f - distance);
 					if (submarineAccel > 0)
 					{
-						submarineZ += (0.02005f - distance) * cos(glm::radians(submarineAngle));
-						submarineX += (0.02005f - distance) * sin(glm::radians(submarineAngle));
+						submarineZ += (0.3501f - distance) * cos(glm::radians(submarineAngle));
+						submarineX += (0.3501f - distance) * sin(glm::radians(submarineAngle));
 					}
 					if (submarineAccel < 0)
 					{
-						submarineZ += (-0.02005f + distance) * cos(glm::radians(submarineAngle));
-						submarineX += (-0.02005f + distance) * sin(glm::radians(submarineAngle));
+						submarineZ += (-0.3501f + distance) * cos(glm::radians(submarineAngle));
+						submarineX += (-0.3501f + distance) * sin(glm::radians(submarineAngle));
 					}
+					broken = true;
 					return true; // Daca este, avem o coliziune
 				}
 			}
 		}
 	}
-
 	return false; // Nicio coliziune
 }
 
@@ -138,6 +144,7 @@ glm::mat4 DetermineSubmarineTransfMatrix(float scaleFactor) {
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineHorizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 	// ** MODEL **
 
 	return model;
@@ -175,7 +182,6 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 			submarineAccel = 0;
 			submarineVerticalAccel = 0;
 			submarineVerticalAngle = 0;
-			broken = true;
 		}
 		break;
 	case ESubmarineMovementType::MOVELEFT:
@@ -184,8 +190,8 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 		else
 			sgn = -1;
 		if (submarineHorizontalAngle < 30)
-			submarineHorizontalAngle += 0.2;
-		submarineAngle += 1.1 * sqrtf(abs(submarineAccel)) * sgn;
+			submarineHorizontalAngle += 0.4;
+		submarineAngle += 3.0 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVERIGHT:
 		if (submarineAccel > 0)
@@ -193,8 +199,8 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 		else
 			sgn = -1;
 		if (submarineHorizontalAngle > -30)
-			submarineHorizontalAngle -= 0.2;
-		submarineAngle -= 1.1 * sqrtf(abs(submarineAccel)) * sgn;
+			submarineHorizontalAngle -= 0.4;
+		submarineAngle -= 3.0 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVEVERTICAL:
 		submarineTransformMatrix = DetermineSubmarineTransfMatrix(1.0f);
@@ -202,9 +208,9 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 		if (!detectCollision(submarineHitbox, faces))
 		{
 			if (submarineY >= 1.39)
-				submarineVerticalAccel -= 0.0001;
+				submarineVerticalAccel -= 0.0015;
 			submarineY += submarineVerticalAccel;
-			submarineVerticalAngle = 2000 * submarineVerticalAccel;
+			submarineVerticalAngle = 500 * submarineVerticalAccel;
 			propellerAngle -= abs(150 * submarineVerticalAccel);
 		}
 		else
@@ -220,37 +226,37 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.0075)
-			submarineVerticalAccel += 0.000075;
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel > -0.0075)
-			submarineVerticalAccel -= 0.000075;
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.03)
+			submarineVerticalAccel += 0.0003;
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel > -0.03)
+			submarineVerticalAccel -= 0.0003;
 	}
 	else
 	{
 		if (submarineVerticalAccel < 0.0f)
-			submarineVerticalAccel += 0.0000375f;
+			submarineVerticalAccel += 0.000075f;
 		if (submarineVerticalAccel > 0.0f)
-			submarineVerticalAccel -= 0.0000375f;
+			submarineVerticalAccel -= 0.000075f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			if (submarineAccel < 0.02f)
-				submarineAccel += 0.00002f;
+			if (submarineAccel < 0.25f)
+				submarineAccel += 0.00025f;
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			if (submarineAccel > -0.02f)
-				submarineAccel -= 0.00002f;
+			if (submarineAccel > -0.25f)
+				submarineAccel -= 0.00025f;
 	}
 	else
 	{
 		if (submarineAccel < 0.0f)
-			submarineAccel += 0.00001f;
+			submarineAccel += 0.00008f;
 		if (submarineAccel > 0.0f)
-			submarineAccel -= 0.00001f;
+			submarineAccel -= 0.00008f;
 	}
 	ProcessKeyboardMovement(MOVE, deltaTime, faces);
 	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime, faces);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS )
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && (submarineAccel > 0.0001f || submarineAccel < -0.0001f))
 			ProcessKeyboardMovement(MOVELEFT, deltaTime, faces);
@@ -259,17 +265,17 @@ void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces
 		if (!(submarineAccel > 0.0001f || submarineAccel < -0.0001f))
 		{
 			if (submarineHorizontalAngle > 0)
-				submarineHorizontalAngle -= 0.2;
+				submarineHorizontalAngle -= 0.4;
 			if (submarineHorizontalAngle < 0)
-				submarineHorizontalAngle += 0.2;
+				submarineHorizontalAngle += 0.4;
 		}
 	}
 	else
 	{
 		if (submarineHorizontalAngle > 0)
-			submarineHorizontalAngle -= 0.2;
+			submarineHorizontalAngle -= 0.4;
 		if (submarineHorizontalAngle < 0)
-			submarineHorizontalAngle += 0.2;
+			submarineHorizontalAngle += 0.4;
 	}
 
 }

@@ -411,6 +411,47 @@ bool DrawWater(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4
 	return true;
 }
 
+bool DrawFish(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor, float xPos, float yPos, float zPos)
+{
+	shaderModel.Use();
+
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+	// Draw the loaded model
+	glm::mat4 model;
+	float degreesHardcoded = 90.0f;
+	model = glm::translate(model, glm::vec3(xPos, yPos, zPos)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor)); // Scale model
+	model = glm::rotate(model, glm::radians(degreesHardcoded), glm::vec3(-1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(degreesHardcoded), glm::vec3(0.0f, 0.0f, 1.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
+void DrawShoal(Shader shaderModel, Model model, glm::mat4& view, glm::mat4& projection, float xPos, float yPos, float zPos)
+{
+	DrawFish(shaderModel, model, view, projection, 0.03f, 1.5f + xPos, 0.1f + yPos, 0.0f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 1.4f + xPos, 0.5f + yPos, 0.1f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.0f + xPos, 0.2f + yPos, 0.0f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 1.7f + xPos, 0.3f + yPos, 0.2f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 1.9f + xPos, 0.4f + yPos, -0.2f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.0f + xPos, 0.5f + yPos, 0.0f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.2f + xPos, 0.3f + yPos, -0.2f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.1f + xPos, 0.4f + yPos, 0.2f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.2f + xPos, 0.3f + yPos, 0.2f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.3f + xPos, 0.4f + yPos, -0.4f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.4f + xPos, 0.6f + yPos, 0.2f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.5f + xPos, 0.3f + yPos, -0.3f + zPos);
+	DrawFish(shaderModel, model, view, projection, 0.03f, 2.3f + xPos, 0.7f + yPos, 0.3f + zPos);
+}
+
 bool DrawInterior(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor)
 {
 	shaderModel.Use();
@@ -676,6 +717,8 @@ int main(int argc, char** argv) {
 	for (int index = 0; index < 23; index++)
 		pathAlge.push_back({ pathToAlge + "alga" + std::to_string(index) + ".obj" });
 
+	std::string pathFish = pathToFish + "fish_obj1.obj";
+
 	std::string pathHitbox = pathToHitbox + "hitbox.obj";
 	std::string pathWall = pathToHitbox + "hitboxWall.obj";
 
@@ -714,6 +757,9 @@ int main(int argc, char** argv) {
 	std::vector<Model> algeModel;
 	for (int index = 0; index < 23; index++)
 		algeModel.push_back(Model((GLchar*)alge[index]));
+
+	const char* fish = pathFish.c_str();
+	Model fishModel((GLchar*)fish);
 
 	const char* hitbox = pathHitbox.c_str();
 	Model hitboxModel((GLchar*)hitbox);
@@ -925,6 +971,22 @@ int main(int argc, char** argv) {
 		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -7.0f, -2.5f, 40.0f);
 		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, 5.0f, -2.5f, 30.0f);
 		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -3.5f, -2.5f, 33.0f);
+
+		//DrawShoal(shaderModel, fishModel, view, projection, 0.0f, -2.0f, 0.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, 0.0f, -1.0f, -15.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, -8.0f, 0.0f, 0.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, -15.0f, 0.0f, -15.0f);
+		//DrawShoal(shaderModel, fishModel, view, projection, -34.0f, 0.0f, -20.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, -30.0f, 0.0f, -30.0f);
+		//DrawShoal(shaderModel, fishModel, view, projection, -25.0f, 0.0f, -17.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, 2.0f, 0.0f, 15.0f);
+		//DrawShoal(shaderModel, fishModel, view, projection, -2.0f, 0.0f, 25.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, 0.0f, 0.0f, 35.0f);
+		//DrawShoal(shaderModel, fishModel, view, projection, -1.0f, 0.0f, 36.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, -22.0f, 0.0f, 16.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, -32.0f, -0.5f, 12.0f);
+		//DrawShoal(shaderModel, fishModel, view, projection, -17.0f, -1.0f, 10.0f);
+		DrawShoal(shaderModel, fishModel, view, projection, -27.0f, -1.0f, 13.0f);
 
 		// Set the opacity value
 		float opacity = 0.65f;
