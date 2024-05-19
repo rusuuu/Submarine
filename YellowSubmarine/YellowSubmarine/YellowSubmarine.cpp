@@ -32,6 +32,13 @@
 #pragma comment (lib, "assimp-vc140-mt.lib")
 #pragma comment (lib, "irrKlang.lib")
 
+glm::vec3 goldLightPos1(-0.475f, 0.87f, -34.0f);
+glm::vec3 goldLightPos2(-27.5f, -2.5f, -16.5f);
+glm::vec3 goldLightPos3(-3.75f, -2.59f, 4.45f);
+glm::vec3 goldLightPos4(-45.0f, 0.92f, 15.5f);
+glm::vec3 goldLightPos5(-22.0f, -2.55f, 2.0f);
+glm::vec3 goldLightPos6(2.5f, 0.45f, 2.0f);
+
 bool DrawSkybox(Shader shaderSkybox, glm::mat4& view, glm::mat4& projection) {
 	// ** SKYBOX **
 
@@ -223,6 +230,38 @@ bool DrawHublou(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(submarineHorizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
+bool DrawTreasure(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor, glm::vec3 pos, float angle, bool collected, int index) {
+	// ** MODEL **
+	shaderModel.Use();
+
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+	shaderModel.SetVec3("goldLightPos1", goldLightPos1);
+	shaderModel.SetVec3("goldLightPos2", goldLightPos2);
+	shaderModel.SetVec3("goldLightPos3", goldLightPos3);
+	shaderModel.SetVec3("goldLightPos4", goldLightPos4);
+	shaderModel.SetVec3("goldLightPos5", goldLightPos5);
+	shaderModel.SetVec3("goldLightPos6", goldLightPos6);
+	shaderModel.SetInt("indexTreasure", -1);
+	if (!collected)
+		shaderModel.SetInt("indexTreasure", index);
+
+
+
+	// Draw the loaded model
+	glm::mat4 model;
+	model = glm::translate(model, pos); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 	shaderModel.SetMat4("model", model);
 	objectModel.Draw(shaderModel);
 	// ** MODEL **
@@ -630,13 +669,15 @@ bool RenderSceneWithLight(Shader shadowMappingDepthShader, Shader shadowMappingS
 glm::vec3 sunlightPos(-2.0f, 4.0f, -1.0f);
 glm::vec3 moonlightPos(-2.0f, 4.0f, -1.0f);
 
-bool firstPerson = false;
+int cameraType = 2;
 void processCameraType(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-		firstPerson = true;
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-		firstPerson = false;
+		cameraType = 0;
+	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+		cameraType = 1;
+	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+		cameraType = 2;
 }
 
 bool InitializeWindow(GLFWwindow*& window) {
@@ -708,6 +749,8 @@ int main(int argc, char** argv) {
 	std::string pathProp = pathToDetachedSubmarine + "prop_obj.obj";
 	std::string pathFlap = pathToDetachedSubmarine + "flap_obj.obj";
 	std::string pathHublou = pathToHublou + "hublou_obj.obj";
+	std::string pathTreasure = pathToTreasure + "treasure.obj";
+	std::string pathEmptyTreasure = pathToTreasure + "cufar.obj";
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
 	std::string pathInterior = pathToInterior + "interior.obj";
@@ -723,6 +766,7 @@ int main(int argc, char** argv) {
 
 	std::string pathHitbox = pathToHitbox + "hitbox.obj";
 	std::string pathWall = pathToHitbox + "hitboxWall.obj";
+	std::string pathTreasureHitbox = pathToHitbox + "hitboxTreasure.obj";
 
 
 	const char* submarine = pathSub.c_str();
@@ -739,6 +783,12 @@ int main(int argc, char** argv) {
 
 	const char* terrain = pathTerrain.c_str();
 	Model terrainModel((GLchar*)terrain);
+
+	const char* treasure = pathTreasure.c_str();
+	Model treasureModel((GLchar*)treasure);
+
+	const char* emptyTreasure = pathEmptyTreasure.c_str();
+	Model emptyTreasureModel((GLchar*)emptyTreasure);
 
 	const char* interior = pathInterior.c_str();
 	Model interiorModel((GLchar*)interior);
@@ -801,7 +851,51 @@ int main(int argc, char** argv) {
 
 	calculateFaceNormals(faces);
 
+	scene = importer.ReadFile(pathTreasureHitbox.c_str(),
+		aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality);
 
+	if (!scene || !scene->mRootNode || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
+		std::cerr << "Error: " << importer.GetErrorString() << std::endl;
+		return -1;
+	}
+
+	std::vector<Treasure> treasureHitboxes;
+
+	std::vector<glm::vec3> treasurePositions =
+	{
+		glm::vec3(-0.475f, 0.42f, -34.0f),
+		glm::vec3(-27.5f, -2.95f, -16.5f),
+		glm::vec3(-3.75f, -3.04f, 4.45f),
+		glm::vec3(-45.0f, 0.47f, 15.5f),
+		glm::vec3(-22.0f, -3.0f, 2.0f),
+		glm::vec3(10.6f, 0.2f, 24.5f),
+	};
+
+	std::vector<float> treasureRotations = { 180.0f, 0.0f, 0.0f, -20.0f, -90.0f, 225.0f };
+
+	for (int index = 0; index < treasurePositions.size(); index++)
+	{
+		Treasure treasure;
+		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+			aiMesh* mesh = scene->mMeshes[meshIndex];
+
+			// Extragem toate fețele (triunghiurile) din mesh
+			for (unsigned int faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+				aiFace& aiFace = mesh->mFaces[faceIndex];
+
+				if (aiFace.mNumIndices == 3) { // Ne asigurăm că avem un triunghi
+					Face face;
+					for (unsigned int i = 0; i < 3; ++i) {
+						aiVector3D aiVertex = mesh->mVertices[aiFace.mIndices[i]];
+						face.vertices[i] = glm::vec3(aiVertex.x + treasurePositions[index].x, aiVertex.y + treasurePositions[index].y, aiVertex.z + treasurePositions[index].z);
+					}
+					treasure.hitbox.push_back(face);
+				}
+			}
+		}
+		calculateFaceNormals(treasure.hitbox);
+		treasureHitboxes.push_back(treasure);
+	}
 
 	const char* wall = pathWall.c_str();
 	Model wallModel((GLchar*)wall);
@@ -844,7 +938,9 @@ int main(int argc, char** argv) {
 		double currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
+		std::string pathSound = pathToSounds + "music.mp3";
+		if (!(engine->isCurrentlyPlaying(pathSound.c_str())))
+			engine->play2D(pathSound.c_str(), false);
 		//glm::radians(360.f)=6.28319 (am folosit constanta ca nu mergea daca foloseam glm::radians
 		sunlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 45300))) - 15;
 		sunlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 45300)));
@@ -854,13 +950,34 @@ int main(int argc, char** argv) {
 
 	// input
 		processInput(window);
-		processSubmarineMovement(window, faces);
+		processSubmarineMovement(window, faces, treasureHitboxes);
 		processCameraType(window);
 
-		if (firstPerson)
+		if (cameraType == 0)
 		{
 			// Poziția relativă inițială a camerei față de submarin
 			glm::vec3 relativePosition(0.0f, 0.25f, -0.25f);
+
+			// Crează o matrice de rotație pentru rotația pe axa Y
+			glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+			glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+			glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX;
+
+			// Aplică rotația asupra poziției relative
+			glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
+
+			// Calculează poziția absolută a camerei adăugând poziția submarinului
+			glm::vec3 cameraPosition = glm::vec3(rotatedPosition) + glm::vec3(submarineX, submarineY, submarineZ);
+
+			int width, height;
+			glfwGetWindowSize(window, &width, &height);
+			pCamera->Set(width, height, cameraPosition, -submarineAngle - 90.0f, submarineVerticalAngle);
+		}
+
+		if (cameraType == 1)
+		{
+			// Poziția relativă inițială a camerei față de submarin
+			glm::vec3 relativePosition(0.0f, 0.25f, 3.00f);
 
 			// Crează o matrice de rotație pentru rotația pe axa Y
 			glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
@@ -891,6 +1008,16 @@ int main(int argc, char** argv) {
 		DrawFlaps(shaderModel, flapModel, view, projection, 0.002f, 0.15f, 180.0f);
 		DrawHublou(shaderModel, hublouModel, view, projection, 0.002f);
 
+		for (int index = 0; index < treasurePositions.size(); index++)
+		{
+			//std::cout << index << " " << treasureHitboxes[index].collected << "\n";
+			if (!treasureHitboxes[index].collected)
+				DrawTreasure(shaderModel, treasureModel, view, projection, 0.1f, treasurePositions[index], treasureRotations[index], treasureHitboxes[index].collected, index);
+			else
+				DrawTreasure(shaderModel, emptyTreasureModel, view, projection, 0.1f, treasurePositions[index], treasureRotations[index], treasureHitboxes[index].collected, index);
+		}
+
+
 		auto t_now = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
 
@@ -900,7 +1027,7 @@ int main(int argc, char** argv) {
 		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		DrawLightSource(shaderLighting, moonModel, view, projection, moonlightPos, 0.005f);
 		DrawLightSource(shaderLighting, sunModel, view, projection, sunlightPos, 0.005f);
-		if (firstPerson)
+		if (cameraType == 0)
 		{
 			DrawInterior(shaderInterior, interiorModel, view, projection, 0.01f);
 			if (broken)

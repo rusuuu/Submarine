@@ -26,7 +26,14 @@ float submarineAccel = 0.0f;
 float submarineVerticalAccel = 0.0f;
 float propellerAngle = 0.0f;
 
+bool collision = false;
+bool isHorizontalColl = false;
+bool isVerticalColl = false;
+bool collisionForward = false;
+
 bool broken = false;
+
+int collectedTreasures = 0;
 
 std::vector<glm::vec3> submarineInitialHitbox;
 std::vector<glm::vec3> terrainInitialHitbox;
@@ -66,42 +73,84 @@ bool isPointInTriangle(const glm::vec3& point, const Face& face) {
 	return true;
 }
 
-bool detectCollision(const std::vector<glm::vec3> submarineHitbox, const std::vector<Face>& faces) {
+bool detectCollision(const std::vector<glm::vec3> submarineHitbox, const std::vector<Face>& faces, std::vector<Treasure>& treasureHitboxes) {
 	for (const auto& face : faces) {
 		for (const auto& vertex : submarineHitbox) {
 			glm::vec3 projectedPoint = projectPointOnPlane(vertex, face);
 			if (isPointInTriangle(projectedPoint, face)) {
 				float distance = glm::length(projectedPoint - vertex);
-				if (distance < 0.35f)
+				if (distance < 0.1f)
 				{
-					if (submarineVerticalAccel < 0)
-						submarineY += (0.3501f - distance);
-					if (submarineVerticalAccel > 0)
-						submarineY -= (0.3501f - distance);
-					if (submarineAccel > 0)
+					if (submarineVerticalAccel < 0 && collision == false)
+						isVerticalColl = true;
+					if (submarineAccel != 0 && collision == false)
 					{
-						submarineZ += (0.3501f - distance) * cos(glm::radians(submarineAngle));
-						submarineX += (0.3501f - distance) * sin(glm::radians(submarineAngle));
+						isHorizontalColl = true;
+						if (submarineAccel > 0)
+						{
+							collisionForward = true;
+							broken = true;
+							std::uniform_int_distribution<> dis(1, 3);
+							std::string sound1 = pathToSounds + "glassShatter1.ogg";
+							std::string sound2 = pathToSounds + "glassShatter2.ogg";
+							std::string sound3 = pathToSounds + "glassShatter3.ogg";
+							int random_value = dis(gen);
+							std::string pathSound = pathToSounds + "glassShatter" + std::to_string(random_value) + ".ogg";
+							if (!(engine->isCurrentlyPlaying(sound1.c_str()) || engine->isCurrentlyPlaying(sound2.c_str()) || engine->isCurrentlyPlaying(sound3.c_str())))
+								engine->play2D(pathSound.c_str(), false);
+						}
+						if (submarineAccel < 0)
+						{
+							collisionForward = false;
+						}
 					}
-					if (submarineAccel < 0)
-					{
-						submarineZ += (-0.3501f + distance) * cos(glm::radians(submarineAngle));
-						submarineX += (-0.3501f + distance) * sin(glm::radians(submarineAngle));
-					}
-					broken = true;
-					std::uniform_int_distribution<> dis(1, 3);
-					std::string sound1 = pathToSounds + "glassShatter1.ogg";
-					std::string sound2 = pathToSounds + "glassShatter2.ogg";
-					std::string sound3 = pathToSounds + "glassShatter3.ogg";
-					int random_value = dis(gen);
-					std::string pathSound = pathToSounds + "glassShatter" + std::to_string(random_value) + ".ogg";
-					if (!(engine->isCurrentlyPlaying(sound1.c_str()) || engine->isCurrentlyPlaying(sound2.c_str()) || engine->isCurrentlyPlaying(sound3.c_str())))
-						engine->play2D(pathSound.c_str(), false);
+					collision = true;
 					return true; // Daca este, avem o coliziune
 				}
 			}
 		}
 	}
+
+	for (Treasure& treasure : treasureHitboxes)
+		for (const auto& face : treasure.hitbox) {
+			for (const auto& vertex : submarineHitbox) {
+				glm::vec3 projectedPoint = projectPointOnPlane(vertex, face);
+				if (isPointInTriangle(projectedPoint, face)) {
+					float distance = glm::length(projectedPoint - vertex);
+					if (distance < 0.4f)
+					{
+						if (submarineVerticalAccel < 0 && collision == false)
+							isVerticalColl = true;
+						if (submarineAccel != 0 && collision == false)
+						{
+							isHorizontalColl = true;
+							if (submarineAccel > 0)
+							{
+								collisionForward = true;
+							}
+							if (submarineAccel < 0)
+							{
+								collisionForward = false;
+							}
+						}
+						if (!treasure.collected)
+						{
+							std::string pathSound = pathToSounds + "collectTreasure.ogg";
+							treasure.collected = true;
+							collectedTreasures++;
+							std::cout << "Collected treasures: " << collectedTreasures << "/" << treasureHitboxes.size()<<"\n";
+							engine->play2D(pathSound.c_str(), false);
+						}
+						collision = true;
+						return true; // Daca este, avem o coliziune
+					}
+				}
+			}
+		}
+
+	collision = false;
+	isHorizontalColl = false;
+	isVerticalColl = false;
 	return false; // Nicio coliziune
 }
 
@@ -177,7 +226,7 @@ std::vector<glm::vec3> TransformHitbox(const std::vector<glm::vec3>& hitbox, con
 	return transformedHitbox;
 }
 
-void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, const std::vector<Face>& faces) {
+void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, const std::vector<Face>& faces, std::vector<Treasure>& treasureHitboxes) {
 	//float velocity = (float)(cameraSpeedFactor * deltaTime);
 	int sgn;
 	glm::mat4 submarineTransformMatrix;
@@ -186,18 +235,17 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 	case ESubmarineMovementType::MOVE:
 		submarineTransformMatrix = DetermineSubmarineTransfMatrix(1.0f);
 		submarineHitbox = TransformHitbox(submarineInitialHitbox, submarineTransformMatrix);
-		if (!detectCollision(submarineHitbox, faces))
-		{
-			submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
-			submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
-			propellerAngle -= 150 * submarineAccel;
-		}
-		else
-		{
-			submarineAccel = 0;
-			submarineVerticalAccel = 0;
-			submarineVerticalAngle = 0;
-		}
+		detectCollision(submarineHitbox, faces, treasureHitboxes);
+		if (isVerticalColl)
+			submarineVerticalAccel = 0.00075f;
+		if (isHorizontalColl)
+			if (collisionForward)
+				submarineAccel = -0.00075f;
+			else
+				submarineAccel = 0.00075f;
+		submarineZ -= submarineAccel * cos(glm::radians(submarineAngle));
+		submarineX -= submarineAccel * sin(glm::radians(submarineAngle));
+		propellerAngle -= 150 * submarineAccel;
 		break;
 	case ESubmarineMovementType::MOVELEFT:
 		if (submarineAccel > 0)
@@ -220,64 +268,63 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 	case ESubmarineMovementType::MOVEVERTICAL:
 		submarineTransformMatrix = DetermineSubmarineTransfMatrix(1.0f);
 		submarineHitbox = TransformHitbox(submarineInitialHitbox, submarineTransformMatrix);
-		if (!detectCollision(submarineHitbox, faces))
-		{
-			if (submarineY >= 1.39)
-				submarineVerticalAccel -= 0.0015;
-			submarineY += submarineVerticalAccel;
-			submarineVerticalAngle = 500 * submarineVerticalAccel;
-			propellerAngle -= abs(150 * submarineVerticalAccel);
-		}
-		else
-		{
-			submarineAccel = 0;
-			submarineVerticalAccel = 0;
-			submarineVerticalAngle = 0;
-		}
+		detectCollision(submarineHitbox, faces, treasureHitboxes);
+		if (isVerticalColl)
+			submarineVerticalAccel = 0.00075f;
+		if (isHorizontalColl)
+			if (collisionForward)
+				submarineAccel = -0.00075f;
+			else
+				submarineAccel = 0.00075f;
+		if (submarineY >= 1.39)
+			submarineVerticalAccel -= 0.0015;
+		submarineY += submarineVerticalAccel;
+		submarineVerticalAngle = 500 * submarineVerticalAccel;
+		propellerAngle -= abs(150 * submarineVerticalAccel);
 		break;
 	}
 }
 
-void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces, std::vector<Treasure>& treasureHitboxes) {	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.03)
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.03 && !collision)
 			submarineVerticalAccel += 0.0003;
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel > -0.03)
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel > -0.03 && !collision)
 			submarineVerticalAccel -= 0.0003;
 	}
 	else
 	{
-		if (submarineVerticalAccel < 0.0f)
+		if (submarineVerticalAccel < 0.0f && !collision)
 			submarineVerticalAccel += 0.000075f;
-		if (submarineVerticalAccel > 0.0f)
+		if (submarineVerticalAccel > 0.0f && !collision)
 			submarineVerticalAccel -= 0.000075f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			if (submarineAccel < 0.25f)
+			if (submarineAccel < 0.25f && !collision)
 				submarineAccel += 0.00025f;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !collision)
 			if (submarineAccel > -0.25f)
 				submarineAccel -= 0.00025f;
 	}
 	else
 	{
-		if (submarineAccel < 0.0f)
+		if (submarineAccel < 0.0f && !collision)
 			submarineAccel += 0.00008f;
-		if (submarineAccel > 0.0f)
+		if (submarineAccel > 0.0f && !collision)
 			submarineAccel -= 0.00008f;
 	}
-	ProcessKeyboardMovement(MOVE, deltaTime, faces);
-	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime, faces);
+	ProcessKeyboardMovement(MOVE, deltaTime, faces, treasureHitboxes);
+	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime, faces, treasureHitboxes);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && (submarineAccel > 0.0001f || submarineAccel < -0.0001f))
-			ProcessKeyboardMovement(MOVELEFT, deltaTime, faces);
+			ProcessKeyboardMovement(MOVELEFT, deltaTime, faces, treasureHitboxes);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && (submarineAccel > 0.0001f || submarineAccel < -0.0001f))
-			ProcessKeyboardMovement(MOVERIGHT, deltaTime, faces);
-		if (!(submarineAccel > 0.0001f || submarineAccel < -0.0001f))
+			ProcessKeyboardMovement(MOVERIGHT, deltaTime, faces, treasureHitboxes);
+		if (!(submarineAccel > 0.001f || submarineAccel < -0.001f))
 		{
 			if (submarineHorizontalAngle > 0)
 				submarineHorizontalAngle -= 0.4;
@@ -292,5 +339,19 @@ void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces
 		if (submarineHorizontalAngle < 0)
 			submarineHorizontalAngle += 0.4;
 	}
-
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+		std::cout << submarineX << " " << submarineY << " " << submarineZ << "\n";
+	/*irrklang::ISound* sound=nullptr;
+	if (submarineAccel > 0.0005 || submarineAccel < -0.0005 || submarineVerticalAccel>0.00015 || submarineVerticalAccel < -0.00015)
+	{
+	std::string pathSound = pathToSounds + "propeller.ogg";
+	sound = engine->play2D(pathSound.c_str(), false);
+	if (!(engine->isCurrentlyPlaying(pathSound.c_str())))
+		engine->play2D(pathSound.c_str(), false);
+	}
+	else
+	{
+		sound->stop();
+	}*/
 }
+
