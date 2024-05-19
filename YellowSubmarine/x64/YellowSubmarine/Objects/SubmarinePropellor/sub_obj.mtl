@@ -1,7 +1,7 @@
-# Blender 4.1.1 MTL File: 'untitled.blend'
+# Blender 4.1.1 MTL File: 'None'
 # www.blender.org
 
-newmtl Camera_LPSG
+newmtl Camera_LPSG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -16,7 +16,7 @@ map_Kd SubmarineCamera_Diffuse.png
 map_bump SubmarineCamera_Normal.png
 bump SubmarineCamera_Normal.png
 
-newmtl GlassCar_Window1SG
+newmtl GlassCar_Window1SG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -32,7 +32,7 @@ map_bump SubmarineFrontGlass_Normal.png
 bump SubmarineFrontGlass_Normal.png
 
 
-newmtl RadarDish_LPSG
+newmtl RadarDish_LPSG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -47,7 +47,7 @@ map_Kd SubmarineRadar_Diffuse.png
 map_bump SubmarineRadar_Normal.png
 bump SubmarineRadar_Normal.png
 
-newmtl VRayBumpMtl1SG
+newmtl VRayBumpMtl1SG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -63,7 +63,7 @@ map_Ke SubmarineBody_Emissive.png
 map_bump SubmarineBody_Normal.png
 bump SubmarineBody_Normal.png
 
-newmtl VRayLightMtl1SG
+newmtl VRayLightMtl1SG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -78,7 +78,7 @@ map_Kd SubmarineCameraLenses_Diffuse.png
 map_bump SubmarineCameraLenses_Normal.png
 bump SubmarineCameraLenses_Normal.png
 
-newmtl VRayLightMtl2SG
+newmtl VRayLightMtl2SG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -93,7 +93,7 @@ map_Kd SubmarineCameraLenses_Diffuse.png
 map_bump SubmarineCameraLenses_Normal.png
 bump SubmarineCameraLenses_Normal.png
 
-newmtl glassCoversSG
+newmtl glassCoversSG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -109,7 +109,7 @@ map_Ke SubmarineGlasses_Emissive.png
 map_bump SubmarineGlasses_Normal.png
 bump SubmarineGlasses_Normal.png
 
-newmtl initialShadingGroup
+newmtl initialShadingGroup.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -124,7 +124,7 @@ map_Kd SubmarineInterior_Diffuse.png
 map_bump SubmarineInterior_Normal.png
 bump SubmarineInterior_Normal.png
 
-newmtl lambert4SG
+newmtl lambert4SG.001
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000

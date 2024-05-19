@@ -180,14 +180,89 @@ bool DrawPropeller(Shader shaderModel, Model objectModel, glm::mat4& view, glm::
 	shaderModel.SetMat4("view", view);
 	shaderModel.SetMat4("projection", projection);
 
-
+	glm::vec3 relativePosition(0.0f, yPos, 1.56f);
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), glm::radians(submarineHorizontalAngle), glm::vec3(0, 0, 1));
+	glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX * rotationMatrixZ;
+	glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
 
 	// Draw the loaded model
 	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(submarineX, submarineY + yPos, submarineZ)); // Move to scene centre
+	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ) + glm::vec3(rotatedPosition)); // Move to scene centre
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(propellerAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
+bool DrawFlaps(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor, float xPos, float angle) {
+	// ** MODEL **
+	shaderModel.Use();
+
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+
+	glm::vec3 relativePosition(xPos, 0.205f, 1.52f);
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), glm::radians(submarineHorizontalAngle), glm::vec3(0, 0, 1));
+	glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX * rotationMatrixZ;
+	glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
+
+	// Draw the loaded model
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ) + glm::vec3(rotatedPosition)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	model = glm::rotate(model, glm::radians(submarineAngle+angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	if (angle == 0)
+	{
+		model = glm::rotate(model, glm::radians(-submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(submarineHorizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	else
+	{
+		model = glm::rotate(model, glm::radians(submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-submarineHorizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	model = glm::rotate(model, glm::radians(-submarineHorizontalAngle / 2), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-submarineHorizontalAngle / 2), glm::vec3(1.0f, 0.0f, 0.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
+bool DrawHublou(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor) {
+	// ** MODEL **
+	shaderModel.Use();
+
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+
+	glm::vec3 relativePosition(0.0f, 0.2, -0.22f);
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), glm::radians(submarineHorizontalAngle), glm::vec3(0, 0, 1));
+	glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX * rotationMatrixZ;
+	glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
+
+	// Draw the loaded model
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ) + glm::vec3(rotatedPosition)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineHorizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 	shaderModel.SetMat4("model", model);
 	objectModel.Draw(shaderModel);
 	// ** MODEL **
@@ -211,6 +286,8 @@ bool DrawSubmarine(Shader shaderModel, Model objectModel, glm::mat4& view, glm::
 	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ)); // Move to scene centre
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineHorizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 	shaderModel.SetMat4("model", model);
 	objectModel.Draw(shaderModel);
 	// ** MODEL **
@@ -383,6 +460,8 @@ int main(int argc, char** argv) {
 	// Load models
 	std::string pathSub = pathToDetachedSubmarine + "sub_obj.obj";
 	std::string pathProp = pathToDetachedSubmarine + "prop_obj.obj";
+	std::string pathFlap = pathToDetachedSubmarine + "flap_obj.obj";
+	std::string pathHublou = pathToHublou + "hublou_obj.obj";
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
 
@@ -393,11 +472,18 @@ int main(int argc, char** argv) {
 	std::string pathHitbox = pathToHitbox + "hitbox.obj";
 	std::string pathWall = pathToHitbox + "hitboxWall.obj";
 
+
 	const char* submarine = pathSub.c_str();
 	Model submarineModel((GLchar*)submarine);
 
 	const char* propeller = pathProp.c_str();
 	Model propellerModel((GLchar*)propeller);
+
+	const char* flap = pathFlap.c_str();
+	Model flapModel((GLchar*)flap);
+
+	const char* hublou = pathHublou.c_str();
+	Model hublouModel((GLchar*)hublou);
 
 	const char* terrain = pathTerrain.c_str();
 	Model terrainModel((GLchar*)terrain);
@@ -509,7 +595,10 @@ int main(int argc, char** argv) {
 		// ** MODEL **
 		DrawSubmarine(shaderModel, submarineModel, view, projection, 0.002f);
 		DrawPropeller(shaderModel, propellerModel, view, projection, 0.002f, 0.063f);
-		DrawPropeller(shaderModel, propellerModel, view, projection, 0.002f, 0.35f);
+		DrawPropeller(shaderModel, propellerModel, view, projection, 0.002f, 0.345f);
+		DrawFlaps(shaderModel, flapModel, view, projection, 0.002f, -0.15f, 0.0f);
+		DrawFlaps(shaderModel, flapModel, view, projection, 0.002f, 0.15f, 180.0f);
+		DrawHublou(shaderModel, hublouModel, view, projection, 0.002f);
 
 		auto t_now = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
@@ -519,7 +608,7 @@ int main(int argc, char** argv) {
 
 		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		DrawObject(shaderModel, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f);
-		DrawObject(shaderModel, wallModel, view, projection, sunlightPos, moonlightPos, 0.2f);
+		//DrawObject(shaderModel, wallModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		// ** MODEL **
 
 		for (int index = 0; index < 23; index++)

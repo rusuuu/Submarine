@@ -18,6 +18,8 @@ float submarineX = 0.0f;
 float submarineY = 0.0f;
 float submarineZ = 0.0f;
 float submarineAngle = 0.0f;
+float submarineVerticalAngle = 0.0f;
+float submarineHorizontalAngle = 0.0f;
 float submarineAccel = 0.0f;
 float submarineVerticalAccel = 0.0f;
 float propellerAngle = 0.0f;
@@ -133,6 +135,7 @@ glm::mat4 DetermineSubmarineTransfMatrix(float scaleFactor) {
 	model = glm::translate(model, glm::vec3(submarineX, submarineY, submarineZ)); // Move to scene centre
 	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
 	model = glm::rotate(model, glm::radians(submarineAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(submarineVerticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
 	// ** MODEL **
 
 	return model;
@@ -169,6 +172,7 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 		{
 			submarineAccel = 0;
 			submarineVerticalAccel = 0;
+			submarineVerticalAngle = 0;
 		}
 		break;
 	case ESubmarineMovementType::MOVELEFT:
@@ -176,6 +180,8 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 			sgn = 1;
 		else
 			sgn = -1;
+		if (submarineHorizontalAngle < 30)
+			submarineHorizontalAngle += 0.2;
 		submarineAngle += 1.1 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVERIGHT:
@@ -183,6 +189,8 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 			sgn = 1;
 		else
 			sgn = -1;
+		if (submarineHorizontalAngle > -30)
+			submarineHorizontalAngle -= 0.2;
 		submarineAngle -= 1.1 * sqrtf(abs(submarineAccel)) * sgn;
 		break;
 	case ESubmarineMovementType::MOVEVERTICAL:
@@ -190,12 +198,17 @@ void ProcessKeyboardMovement(ESubmarineMovementType direction, float deltaTime, 
 		submarineHitbox = TransformHitbox(submarineInitialHitbox, submarineTransformMatrix);
 		if (!detectCollision(submarineHitbox, faces))
 		{
+			if (submarineY >= 1.39)
+				submarineVerticalAccel -= 0.0001;
 			submarineY += submarineVerticalAccel;
+			submarineVerticalAngle = 2000 * submarineVerticalAccel;
+			propellerAngle -= abs(150 * submarineVerticalAccel);
 		}
 		else
 		{
 			submarineAccel = 0;
 			submarineVerticalAccel = 0;
+			submarineVerticalAngle = 0;
 		}
 		break;
 	}
@@ -206,10 +219,8 @@ void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces
 	{
 		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel < 0.0075)
 			submarineVerticalAccel += 0.000075;
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineVerticalAccel > -0.0075)
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && submarineY < 1.39 && submarineVerticalAccel > -0.0075)
 			submarineVerticalAccel -= 0.000075;
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && submarineY >= 1.39)
-			submarineVerticalAccel = 0;
 	}
 	else
 	{
@@ -236,9 +247,26 @@ void processSubmarineMovement(GLFWwindow* window, const std::vector<Face>& faces
 	}
 	ProcessKeyboardMovement(MOVE, deltaTime, faces);
 	ProcessKeyboardMovement(MOVEVERTICAL, deltaTime, faces);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && submarineAccel != 0.0f)
-		ProcessKeyboardMovement(MOVELEFT, deltaTime, faces);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && submarineAccel != 0.0f)
-		ProcessKeyboardMovement(MOVERIGHT, deltaTime, faces);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS )
+	{
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && (submarineAccel > 0.0001f || submarineAccel < -0.0001f))
+			ProcessKeyboardMovement(MOVELEFT, deltaTime, faces);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && (submarineAccel > 0.0001f || submarineAccel < -0.0001f))
+			ProcessKeyboardMovement(MOVERIGHT, deltaTime, faces);
+		if (!(submarineAccel > 0.0001f || submarineAccel < -0.0001f))
+		{
+			if (submarineHorizontalAngle > 0)
+				submarineHorizontalAngle -= 0.2;
+			if (submarineHorizontalAngle < 0)
+				submarineHorizontalAngle += 0.2;
+		}
+	}
+	else
+	{
+		if (submarineHorizontalAngle > 0)
+			submarineHorizontalAngle -= 0.2;
+		if (submarineHorizontalAngle < 0)
+			submarineHorizontalAngle += 0.2;
+	}
 
 }
