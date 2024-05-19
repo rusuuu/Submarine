@@ -275,6 +275,163 @@ bool DrawAlge(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4&
 	return true;
 }
 
+void DrawVegetation_Cluster1(Shader shaderModel, std::vector<Model> modelVector, glm::mat4& view, glm::mat4& projection, float xPos, float yPos, float zPos)
+{
+	DrawAlge(shaderModel, modelVector[13], view, projection, 1.0f, 1.0f, -0.7f + xPos, yPos, 0.0f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[13], view, projection, 1.0f, 1.0f, -0.7f + xPos, yPos, 0.0f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[14], view, projection, 1.0f, 1.0f, 0.0f + xPos, yPos, 0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[14], view, projection, 1.0f, 1.0f, 0.0f + xPos, yPos, 0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[16], view, projection, 1.3f, 0.5f, 0.0f + xPos, yPos, 1.5f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[16], view, projection, 1.3f, 0.5f, 0.0f + xPos, yPos, 1.5f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[22], view, projection, 1.3f, 0.7f, 0.0f + xPos, yPos, 0.0f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[22], view, projection, 1.3f, 0.7f, 0.0f + xPos, yPos, 0.0f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[19], view, projection, 1.0f, 1.0f, -0.7f + xPos, yPos, 0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[19], view, projection, 1.0f, 1.0f, -0.7f + xPos, yPos, 0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[16], view, projection, 1.3f, 1.0, -1.4f + xPos, yPos, 1.4f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[16], view, projection, 1.3f, 1.0f, -1.4f + xPos, yPos, 1.4f + zPos, 90.0f);
+}
+
+void DrawVegetation_Cluster2(Shader shaderModel, std::vector<Model> modelVector, glm::mat4& view, glm::mat4& projection, float xPos, float yPos, float zPos)
+{
+	DrawAlge(shaderModel, modelVector[1], view, projection, 1.5f, 0.3f, -0.7f + xPos, yPos, 0.0f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[1], view, projection, 1.5f, 0.3f, -0.7f + xPos, yPos, 0.0f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.7f, 0.5f, +0.7f + xPos, yPos, 0.0f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.7f, 0.5f, +0.7f + xPos, yPos, 0.0f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, xPos, 0.3f + yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, xPos, 0.3f + yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, +0.7f + xPos, 0.3f + yPos, -0.7f + +zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, +0.7f + xPos, 0.3f + yPos, -0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, -0.7f + xPos, 0.3f + yPos, +0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, -0.7f + xPos, 0.3f + yPos, +0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, +0.7f + xPos, 0.3f + yPos, 0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, +0.7f + xPos, 0.3f + yPos, 0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, -0.7f + xPos, 0.3f + yPos, -0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[4], view, projection, 0.7f, 0.7f, -0.7f + xPos, 0.3f + yPos, -0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -1.7f + xPos, yPos, -0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -1.7f + xPos, yPos, -0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -0.7f + xPos, yPos, -1.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -0.7f + xPos, yPos, -1.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -0.7f + xPos, yPos, -0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -0.7f + xPos, yPos, -0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -0.7f + xPos, yPos, +1.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.7f, 0.5f, -0.7f + xPos, yPos, +1.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.7f, 0.5f, +0.7f + xPos, yPos, -0.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.7f, 0.5f, +0.7f + xPos, yPos, -0.7f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.7f, 0.5f, +0.7f + xPos, yPos, +1.7f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.7f, 0.5f, +0.7f + xPos, yPos, +1.7f + zPos, 90.0f);
+}
+
+void DrawVegetation_Cluster3(Shader shaderModel, std::vector<Model> modelVector, glm::mat4& view, glm::mat4& projection, float xPos, float yPos, float zPos)
+{
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.6f, 0.7f, xPos, yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[8], view, projection, 1.2f, 0.7f, xPos, yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.0f, 0.7f, 0.8f + xPos, yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.3f, 0.7f, 0.8f + xPos, yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.2f, 0.7f, -0.8f + xPos, yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.3f, 0.7f, -0.8f + xPos, yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.8f, 0.7f, xPos, yPos, 0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.3f, 0.7f, xPos, yPos, 0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[3], view, projection, 1.7f, 0.7f, 0.8f + xPos, yPos, 0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.3f, 0.7f, 0.8f + xPos, yPos, 0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[8], view, projection, 1.4f, 0.7f, -0.8f + xPos, yPos, 0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.3f, 0.7f, -0.8f + xPos, yPos, 0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.2f, 0.7f, xPos, yPos, -0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.3f, 0.7f, xPos, yPos, -0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.0f, 0.7f, 0.8f + xPos, yPos, -0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[0], view, projection, 1.3f, 0.7f, 0.8f + xPos, yPos, -0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[2], view, projection, 1.9f, 0.7f, -0.8f + xPos, yPos, -0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[9], view, projection, 1.2f, 0.7f, -0.8f + xPos, yPos, -0.8f + zPos, 90.0f);
+}
+
+void DrawVegetation_Cluster4(Shader shaderModel, std::vector<Model> modelVector, glm::mat4& view, glm::mat4& projection, float xPos, float yPos, float zPos)
+{
+	DrawAlge(shaderModel, modelVector[11], view, projection, 1.6f, 0.7f, xPos, yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.2f, 0.7f, xPos, yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.0f, 0.7f, 0.8f + xPos, yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.3f, 0.7f, 0.8f + xPos, yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[12], view, projection, 1.2f, 0.7f, -0.8f + xPos, yPos, zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.3f, 0.7f, -0.8f + xPos, yPos, zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.8f, 0.7f, xPos, yPos, 0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.3f, 0.7f, xPos, yPos, 0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[13], view, projection, 1.7f, 0.7f, 0.8f + xPos, yPos, 0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.3f, 0.7f, 0.8f + xPos, yPos, 0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.4f, 0.7f, -0.8f + xPos, yPos, 0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.3f, 0.7f, -0.8f + xPos, yPos, 0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.2f, 0.7f, xPos, yPos, -0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[10], view, projection, 1.3f, 0.7f, xPos, yPos, -0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.0f, 0.7f, 0.8f + xPos, yPos, -0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.3f, 0.7f, 0.8f + xPos, yPos, -0.8f + zPos, 90.0f);
+	DrawAlge(shaderModel, modelVector[15], view, projection, 1.1f, 0.7f, -0.8f + xPos, yPos, -0.8f + zPos, 0.0f);
+	DrawAlge(shaderModel, modelVector[21], view, projection, 1.9f, 0.7f, -0.8f + xPos, yPos, -0.8f + zPos, 90.0f);
+}
+
+bool DrawWater(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, glm::vec3 sunlightPos, glm::vec3 moonlightPos, float scaleFactor, float yPos) {
+	// ** MODEL **
+	shaderModel.Use();
+
+	auto currentTime = std::chrono::system_clock::now();
+	auto currentTimeSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
+	auto currentTimeSecondsToInt = currentTimeSeconds.time_since_epoch().count();
+
+	int ambientValue;
+	ambientValue = currentTimeSecondsToInt % 86400;
+	float Ka;
+	if (ambientValue >= 0 && ambientValue < 5400)
+		Ka = 0.3;
+	if (ambientValue >= 5400 && ambientValue < 10800)
+		Ka = 0.4;
+	if (ambientValue >= 10800 && ambientValue < 16200)
+		Ka = 0.5;
+	if (ambientValue >= 16200 && ambientValue < 21600)
+		Ka = 0.6;
+	if (ambientValue >= 21600 && ambientValue < 27000)
+		Ka = 0.7;
+	if (ambientValue >= 27000 && ambientValue < 32400)
+		Ka = 0.8;
+	if (ambientValue >= 32400 && ambientValue < 37800)
+		Ka = 0.8;
+	if (ambientValue >= 37800 && ambientValue < 43200)
+		Ka = 0.7;
+	if (ambientValue >= 43200 && ambientValue < 48600)
+		Ka = 0.6;
+	if (ambientValue >= 48600 && ambientValue < 54000)
+		Ka = 0.5;
+	if (ambientValue >= 54000 && ambientValue < 59400)
+		Ka = 0.4;
+	if (ambientValue >= 59400 && ambientValue < 64800)
+		Ka = 0.3;
+	if (ambientValue >= 64800 && ambientValue < 70200)
+		Ka = 0.2;
+	if (ambientValue >= 70200 && ambientValue < 75600)
+		Ka = 0.1;
+	if (ambientValue >= 75600 && ambientValue < 81000)
+		Ka = 0.1;
+	if (ambientValue >= 81000 && ambientValue < 86400)
+		Ka = 0.2;
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetFloat("Ka", Ka);
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	shaderModel.SetVec3("sunlightPos", sunlightPos);
+	shaderModel.SetVec3("moonlightPos", moonlightPos);
+	shaderModel.SetVec3("viewPos", pCamera->GetPosition());
+
+	// Draw the loaded model
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0.0f, yPos, 0.0f)); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	//model = glm::rotate(model, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
 bool DrawInterior(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor)
 {
 	shaderModel.Use();
@@ -559,6 +716,8 @@ int main(int argc, char** argv) {
 	shadowMappingShader.SetInt("shadowMap", 1);
 
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glm::mat4 projection = glm::perspective(pCamera->GetZoom(), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
@@ -638,15 +797,83 @@ int main(int argc, char** argv) {
 		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		if (firstPerson)
 			DrawInterior(shaderInterior, interiorModel, view, projection, 0.01f);
-		DrawObject(shaderModel, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f);
+
 		//DrawObject(shaderModel, wallModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		// ** MODEL **
 
-		for (int index = 0; index < 23; index++)
-		{
-			DrawAlge(shaderAlge, algeModel[index], view, projection, 1.0f, 0.3, 0.0f, -3.5f, index, 0.0f);
-			DrawAlge(shaderAlge, algeModel[index], view, projection, 1.0f, 0.3f, 0.0f, -3.5f, index, 90.0f);
-		}
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -2.5f, -2.5f, -6.5f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -3.5f, -3.5f, -6.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -1.5f, -3.5f, -7.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 2.5f, -3.5f, -7.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, 10.0f, -2.5f, 0.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, 7.0f, -3.5f, 9.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, 9.0f, -2.0f, 8.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 8.5f, -3.5f, 5.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 8.5f, -3.5f, 11.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, 7.0f, -3.5f, 6.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -20.0f, -3.5f, 8.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -22.0f, -3.5f, 3.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -22.0f, -3.5f, 15.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -30.0f, -3.5f, 2.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -25.0f, -3.5f, 18.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -32.0f, -3.0f, 22.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -34.0f, -3.5f, 10.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -16.0f, -3.5f, -16.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, -26.0f, -3.5f, -30.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -23.0f, -3.5f, -8.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -24.5f, -3.5f, -11.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, -25.0f, -3.5f, -13.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -30.0f, -2.5f, -20.6f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -27.0f, -3.5f, -15.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -30.0f, -2.5f, 17.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -30.0f, -2.5f, -35.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -36.0f, -3.0f, -30.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -34.0f, -2.0f, -33.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -33.0f, -3.0f, -28.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -35.0f, -2.5f, -30.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -28.0f, -2.5f, -37.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -16.0f, -2.5f, -35.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, -18.0f, -2.5f, -34.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -14.0f, -2.5f, -33.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -12.0f, -2.5f, -35.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, -8.0f, -3.5f, -18.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -3.0f, -3.5f, -18.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -1.0f, -3.5f, -17.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 0.0f, -3.0f, -15.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -24.0f, -3.0f, 3.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -20.0f, -3.0f, 5.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -18.0f, -3.0f, 7.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -38.0f, -3.0f, 13.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -42.0f, -3.0f, 17.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, 10.0f, -1.5f, -15.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 12.0f, -1.5f, -17.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 12.0f, -1.5f, -8.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -4.0f, -3.5f, 4.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -3.0f, -3.5f, 4.5f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -5.0f, -3.5f, 5.5f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -7.0f, -3.5f, 7.5f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, -5.0f, -3.5f, 2.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, 5.0f, -2.0f, 20.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, 4.0f, -2.0f, 22.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, 6.0f, -2.0f, 23.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, 6.0f, -2.0f, 19.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -1.0f, -3.0f, 22.0f);
+		DrawVegetation_Cluster1(shaderAlge, algeModel, view, projection, -2.0f, -3.0f, 23.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, -4.0f, -3.0f, 19.0f);
+		DrawVegetation_Cluster2(shaderAlge, algeModel, view, projection, 0.0f, -2.5f, 40.0f);
+		DrawVegetation_Cluster4(shaderAlge, algeModel, view, projection, -7.0f, -2.5f, 40.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, 5.0f, -2.5f, 30.0f);
+		DrawVegetation_Cluster3(shaderAlge, algeModel, view, projection, -3.5f, -2.5f, 33.0f);
+
+		// Set the opacity value
+		float opacity = 0.65f;
+		shaderWater.Use();
+		shaderWater.SetFloat("opacity", opacity);
+		DrawWater(shaderWater, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f, 0.0f);
+		opacity = 0.45f;
+		shaderWater.Use();
+		shaderWater.SetFloat("opacity", opacity);
+		DrawWater(shaderWater, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f, 0.002f);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
