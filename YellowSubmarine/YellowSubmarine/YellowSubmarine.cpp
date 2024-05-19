@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdlib.h> // necesare pentru citirea shaderStencilTesting-elor
+#include <irrKlang.h>
 
 #include <GL/glew.h>
 
@@ -29,6 +30,7 @@
 #pragma comment (lib, "glew32.lib")
 #pragma comment (lib, "OpenGL32.lib")
 #pragma comment (lib, "assimp-vc140-mt.lib")
+#pragma comment (lib, "irrKlang.lib")
 
 bool DrawSkybox(Shader shaderSkybox, glm::mat4& view, glm::mat4& projection) {
 	// ** SKYBOX **

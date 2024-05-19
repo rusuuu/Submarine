@@ -1,8 +1,10 @@
 #pragma once
 
 #include <glfw3.h>
+#include <random>
 
 #include "Camera.h"
+#include "Paths.h"
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -30,6 +32,11 @@ std::vector<glm::vec3> submarineInitialHitbox;
 std::vector<glm::vec3> terrainInitialHitbox;
 
 Camera* pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
+
+std::random_device rd;
+std::mt19937 gen(rd());
+
+irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
 
 struct Face {
 	glm::vec3 vertices[3];
@@ -82,6 +89,14 @@ bool detectCollision(const std::vector<glm::vec3> submarineHitbox, const std::ve
 						submarineX += (-0.3501f + distance) * sin(glm::radians(submarineAngle));
 					}
 					broken = true;
+					std::uniform_int_distribution<> dis(1, 3);
+					std::string sound1 = pathToSounds + "glassShatter1.ogg";
+					std::string sound2 = pathToSounds + "glassShatter2.ogg";
+					std::string sound3 = pathToSounds + "glassShatter3.ogg";
+					int random_value = dis(gen);
+					std::string pathSound = pathToSounds + "glassShatter" + std::to_string(random_value) + ".ogg";
+					if (!(engine->isCurrentlyPlaying(sound1.c_str()) || engine->isCurrentlyPlaying(sound2.c_str()) || engine->isCurrentlyPlaying(sound3.c_str())))
+						engine->play2D(pathSound.c_str(), false);
 					return true; // Daca este, avem o coliziune
 				}
 			}

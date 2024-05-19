@@ -10,6 +10,7 @@ std::string pathToExternalTextures;
 std::string pathToTextures;
 std::string pathToShaders;
 std::string pathToObjects;
+std::string pathToSounds;
 
 std::string pathToSubmarine;
 std::string pathToDetachedSubmarine;
@@ -50,6 +51,7 @@ bool InitializePaths(std::string strFullExeFileName) {	//Initializes all the pat
 	pathToTextures = pathToExe + "\\Textures\\";
 	pathToShaders = pathToExe + "\\Shaders\\";
 	pathToObjects = pathToExe + "\\Objects\\";
+	pathToSounds = pathToExe + "\\Sounds\\";
 
 	pathToSubmarine = pathToExe + "\\Objects\\Submarine\\";
 	pathToDetachedSubmarine = pathToExe + "\\Objects\\SubmarinePropellor\\";
