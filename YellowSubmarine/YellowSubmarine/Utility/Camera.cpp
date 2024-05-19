@@ -15,10 +15,10 @@ Camera::Camera(const int width, const int height, const glm::vec3& position) {
 	Set(width, height, position);
 }
 
-void Camera::Set(const int width, const int height, const glm::vec3& position) {
+void Camera::Set(const int width, const int height, const glm::vec3& position, const float yaw, const float pitch) {
 	this->isPerspective = true;
-	this->yaw = YAW;
-	this->pitch = PITCH;
+	this->yaw = yaw;
+	this->pitch = pitch;
 
 	this->FoVy = FOV;
 	this->width = width;

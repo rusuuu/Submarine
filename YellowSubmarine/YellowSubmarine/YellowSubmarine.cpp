@@ -50,39 +50,18 @@ bool DrawSkybox(Shader shaderSkybox, glm::mat4& view, glm::mat4& projection) {
 
 	int ambientValue;
 	ambientValue = currentTimeSecondsToInt % 86400;
+	int segment = ambientValue / 5400;
 	float Ka;
-	if (ambientValue >= 0 && ambientValue < 5400)
-		Ka = 0.3;
-	if (ambientValue >= 5400 && ambientValue < 10800)
-		Ka = 0.4;
-	if (ambientValue >= 10800 && ambientValue < 16200)
-		Ka = 0.5;
-	if (ambientValue >= 16200 && ambientValue < 21600)
-		Ka = 0.6;
-	if (ambientValue >= 21600 && ambientValue < 27000)
-		Ka = 0.7;
-	if (ambientValue >= 27000 && ambientValue < 32400)
-		Ka = 0.8;
-	if (ambientValue >= 32400 && ambientValue < 37800)
-		Ka = 0.8;
-	if (ambientValue >= 37800 && ambientValue < 43200)
-		Ka = 0.7;
-	if (ambientValue >= 43200 && ambientValue < 48600)
-		Ka = 0.6;
-	if (ambientValue >= 48600 && ambientValue < 54000)
-		Ka = 0.5;
-	if (ambientValue >= 54000 && ambientValue < 59400)
-		Ka = 0.4;
-	if (ambientValue >= 59400 && ambientValue < 64800)
-		Ka = 0.3;
-	if (ambientValue >= 64800 && ambientValue < 70200)
-		Ka = 0.2;
-	if (ambientValue >= 70200 && ambientValue < 75600)
+
+	if (segment <= 7) {
+		Ka = 0.2 + 0.1 * segment;
+	}
+	else if (segment <= 15) {
+		Ka = 0.8 - 0.1 * (segment - 7);
+	}
+	else {
 		Ka = 0.1;
-	if (ambientValue >= 75600 && ambientValue < 81000)
-		Ka = 0.1;
-	if (ambientValue >= 81000 && ambientValue < 86400)
-		Ka = 0.2;
+	}
 
 	shaderSkybox.SetFloat("Ka", Ka);
 
@@ -114,39 +93,18 @@ bool DrawObject(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat
 
 	int ambientValue;
 	ambientValue = currentTimeSecondsToInt % 86400;
+	int segment = ambientValue / 5400;
 	float Ka;
-	if (ambientValue >= 0 && ambientValue < 5400)
-		Ka = 0.3;
-	if (ambientValue >= 5400 && ambientValue < 10800)
-		Ka = 0.4;
-	if (ambientValue >= 10800 && ambientValue < 16200)
-		Ka = 0.5;
-	if (ambientValue >= 16200 && ambientValue < 21600)
-		Ka = 0.6;
-	if (ambientValue >= 21600 && ambientValue < 27000)
-		Ka = 0.7;
-	if (ambientValue >= 27000 && ambientValue < 32400)
-		Ka = 0.8;
-	if (ambientValue >= 32400 && ambientValue < 37800)
-		Ka = 0.8;
-	if (ambientValue >= 37800 && ambientValue < 43200)
-		Ka = 0.7;
-	if (ambientValue >= 43200 && ambientValue < 48600)
-		Ka = 0.6;
-	if (ambientValue >= 48600 && ambientValue < 54000)
-		Ka = 0.5;
-	if (ambientValue >= 54000 && ambientValue < 59400)
-		Ka = 0.4;
-	if (ambientValue >= 59400 && ambientValue < 64800)
-		Ka = 0.3;
-	if (ambientValue >= 64800 && ambientValue < 70200)
-		Ka = 0.2;
-	if (ambientValue >= 70200 && ambientValue < 75600)
+
+	if (segment <= 7) {
+		Ka = 0.2 + 0.1 * segment;
+	}
+	else if (segment <= 15) {
+		Ka = 0.8 - 0.1 * (segment - 7);
+	}
+	else {
 		Ka = 0.1;
-	if (ambientValue >= 75600 && ambientValue < 81000)
-		Ka = 0.1;
-	if (ambientValue >= 81000 && ambientValue < 86400)
-		Ka = 0.2;
+	}
 	view = pCamera->GetViewMatrix();
 
 	shaderModel.SetFloat("Ka", Ka);
@@ -317,6 +275,41 @@ bool DrawAlge(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4&
 	return true;
 }
 
+bool DrawInterior(Shader shaderModel, Model objectModel, glm::mat4& view, glm::mat4& projection, float scaleFactor)
+{
+	shaderModel.Use();
+
+	view = pCamera->GetViewMatrix();
+
+	shaderModel.SetMat4("view", view);
+	shaderModel.SetMat4("projection", projection);
+	shaderModel.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+	// Draw the loaded model
+	glm::vec3 relativePosition(0.0f, 0.16f, -0.4f);
+
+	// Crează o matrice de rotație pentru rotația pe axa Y
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+	glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX;
+
+	// Aplică rotația asupra poziției relative
+	glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
+
+	// Calculează poziția absolută a camerei adăugând poziția submarinului
+	glm::vec3 interiorPosition = glm::vec3(rotatedPosition) + glm::vec3(submarineX, submarineY, submarineZ);
+	glm::mat4 model;
+	model = glm::translate(model, interiorPosition); // Move to scene centre
+	model = glm::scale(model, glm::vec3(scaleFactor, scaleFactor, scaleFactor));	// Scale model
+	model = glm::rotate(model, glm::radians(submarineAngle - 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-submarineVerticalAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	shaderModel.SetMat4("model", model);
+	objectModel.Draw(shaderModel);
+	// ** MODEL **
+
+	return true;
+}
+
 bool BuildDepthMapVBO(unsigned int& depthMap, unsigned int& depthMapFBO) {
 
 	// configure depth map FBO
@@ -396,6 +389,15 @@ bool RenderSceneWithLight(Shader shadowMappingDepthShader, Shader shadowMappingS
 glm::vec3 sunlightPos(-2.0f, 4.0f, -1.0f);
 glm::vec3 moonlightPos(-2.0f, 4.0f, -1.0f);
 
+bool firstPerson = false;
+void processCameraType(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		firstPerson = true;
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+		firstPerson = false;
+}
+
 bool InitializeWindow(GLFWwindow*& window) {
 	// glfw: initialize and configure
 	glfwInit();
@@ -456,6 +458,7 @@ int main(int argc, char** argv) {
 	std::string pathToObjectShaders(pathToShaders + "Objects\\");
 	Shader shaderModel(pathToObjectShaders + "modelLoading.vs", pathToObjectShaders + "modelLoading.frag");
 	Shader shaderAlge(pathToObjectShaders + "algeShader.vs", pathToObjectShaders + "algeShader.frag");
+	Shader shaderInterior(pathToObjectShaders + "interiorShader.vs", pathToObjectShaders + "interiorShader.frag");
 
 	// Load models
 	std::string pathSub = pathToDetachedSubmarine + "sub_obj.obj";
@@ -464,6 +467,7 @@ int main(int argc, char** argv) {
 	std::string pathHublou = pathToHublou + "hublou_obj.obj";
 	std::string pathTerrain = pathToTerrain + "terrain.obj";
 	std::string pathWater = pathToWater + "water.obj";
+	std::string pathInterior = pathToInterior + "interior.obj";
 
 	std::vector<std::string> pathAlge;
 	for (int index = 0; index < 23; index++)
@@ -487,6 +491,9 @@ int main(int argc, char** argv) {
 
 	const char* terrain = pathTerrain.c_str();
 	Model terrainModel((GLchar*)terrain);
+
+	const char* interior = pathInterior.c_str();
+	Model interiorModel((GLchar*)interior);
 
 	std::vector<const char*> alge;
 	for (int index = 0; index < 23; index++)
@@ -577,15 +584,37 @@ int main(int argc, char** argv) {
 		lastFrame = currentFrame;
 
 		//glm::radians(360.f)=6.28319 (am folosit constanta ca nu mergea daca foloseam glm::radians
-		sunlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500))) - 15;
-		sunlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 52500)));
-		moonlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 9300))) - 15;
-		moonlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 9300)));
+		sunlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 45300))) - 15;
+		sunlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 45300)));
+		moonlightPos.x = 60 * sin(((6.28319 / 86400) * (currentTimeSecondsToInt + 2200))) - 15;
+		moonlightPos.y = 60 * cos(((6.28319 / 86400) * (currentTimeSecondsToInt + 2200)));
 		//std::cout << lightPos.x << " " << lightPos.y << " " << currentTimeSecondsToInt << " " << 6.28319 * currentTimeSecondsToInt << " " << "\n";
 
 	// input
 		processInput(window);
 		processSubmarineMovement(window, faces);
+		processCameraType(window);
+
+		if (firstPerson)
+		{
+			// Poziția relativă inițială a camerei față de submarin
+			glm::vec3 relativePosition(0.0f, 0.25f, -0.25f);
+
+			// Crează o matrice de rotație pentru rotația pe axa Y
+			glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(submarineVerticalAngle), glm::vec3(1, 0, 0));
+			glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(submarineAngle), glm::vec3(0, 1, 0));
+			glm::mat4 rotationMatrix = rotationMatrixY * rotationMatrixX; 
+
+			// Aplică rotația asupra poziției relative
+			glm::vec4 rotatedPosition = rotationMatrix * glm::vec4(relativePosition, 1.0f);
+
+			// Calculează poziția absolută a camerei adăugând poziția submarinului
+			glm::vec3 cameraPosition = glm::vec3(rotatedPosition) + glm::vec3(submarineX, submarineY, submarineZ);
+
+			int width, height;
+			glfwGetWindowSize(window, &width, &height);
+			pCamera->Set(width, height, cameraPosition, -submarineAngle - 90.0f, submarineVerticalAngle);
+		}
 
 		glm::mat4 view = pCamera->GetViewMatrix();
 		RenderSceneWithLight(shadowMappingDepthShader, shadowMappingShader, depthMap, depthMapFBO, sunlightPos, view, projection);
@@ -607,6 +636,8 @@ int main(int argc, char** argv) {
 		//DrawAndRotateObject(shaderModel, submarineModel, view, projection, 0.5f, time, 2.0);
 
 		DrawObject(shaderModel, terrainModel, view, projection, sunlightPos, moonlightPos, 0.2f);
+		if (firstPerson)
+			DrawInterior(shaderInterior, interiorModel, view, projection, 0.01f);
 		DrawObject(shaderModel, waterModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		//DrawObject(shaderModel, wallModel, view, projection, sunlightPos, moonlightPos, 0.2f);
 		// ** MODEL **

@@ -18,6 +18,7 @@ std::string pathToHublou;
 std::string pathToTerrain;
 std::string pathToWater;
 std::string pathToAlge;
+std::string pathToInterior;
 std::string pathToHitbox;
 
 std::string pathToSkyBoxTextures;
@@ -53,6 +54,7 @@ bool InitializePaths(std::string strFullExeFileName) {	//Initializes all the pat
 	pathToTerrain = pathToExe + "\\Objects\\Terrain\\";
 	pathToWater = pathToExe + "\\Objects\\Water\\";
 	pathToAlge = pathToExe + "\\Objects\\Alge\\";
+	pathToInterior = pathToExe + "\\Objects\\Interior\\";
 	pathToHitbox = pathToExe + "\\Objects\\Hitboxes\\";
 
 	pathToSkyBoxTextures = pathToTextures + "Skybox\\";

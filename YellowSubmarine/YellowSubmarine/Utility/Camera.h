@@ -40,7 +40,7 @@ public:
 
 	Camera(const int width, const int height, const glm::vec3& position);
 
-	void Set(const int width, const int height, const glm::vec3& position);
+	void Set(const int width, const int height, const glm::vec3& position, const float yaw = -90.0f, const float pitch = 0.0f);
 
 	void Reset(const int width, const int height);
 	void Reshape(int windowWidth, int windowHeight);
